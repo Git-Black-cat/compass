@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Compass</title>
+<meta name="theme-color" content="#1B2433">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Compass">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231B2433'/%3E%3Cpath d='M16 6l4 10-4 10-4-10z' fill='%2357C4B8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F5; --surface:#FFFFFF; --surface-2:#F6F8FA; --ink:#1B2433; --ink-2:#3A4557; --muted:#667085;
+  --line:#DCE1E8; --line-2:#E8ECF1; --accent:#0F6E6E; --accent-ink:#FFFFFF; --accent-soft:#E0F0EE;
+  --danger:#C2412D; --danger-soft:#FBE9E5; --warn:#B7791F; --warn-soft:#FBF1DE; --ok:#2F855A; --ok-soft:#E4F4EA;
+  --side:#1B2433; --side-ink:#E6EAF0; --side-muted:#8B97AA; --side-hover:#26324A;
+  --shadow:0 1px 2px rgba(27,36,51,.06),0 8px 24px -12px rgba(27,36,51,.18);
+  --r-sm:6px; --r:12px; --r-lg:18px;
+  --font:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Bricolage Grotesque","Figtree",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#10151F; --surface:#171E2B; --surface-2:#1C2433; --ink:#E8ECF2; --ink-2:#C3CBD8; --muted:#8C98AB;
+  --line:#2A3446; --line-2:#222B3B; --accent:#57C4B8; --accent-ink:#0B1B1A; --accent-soft:#16302F;
+  --danger:#F08A76; --danger-soft:#3A1F1B; --warn:#E8B860; --warn-soft:#352A16; --ok:#6FCF97; --ok-soft:#173226;
+  --side:#0B1018; --side-ink:#E6EAF0; --side-muted:#7D8899; --side-hover:#182133;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6); color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#10151F; --surface:#171E2B; --surface-2:#1C2433; --ink:#E8ECF2; --ink-2:#C3CBD8; --muted:#8C98AB;
+  --line:#2A3446; --line-2:#222B3B; --accent:#57C4B8; --accent-ink:#0B1B1A; --accent-soft:#16302F;
+  --danger:#F08A76; --danger-soft:#3A1F1B; --warn:#E8B860; --warn-soft:#352A16; --ok:#6FCF97; --ok-soft:#173226;
+  --side:#0B1018; --side-ink:#E6EAF0; --side-muted:#7D8899; --side-hover:#182133;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:700;letter-spacing:-.01em;margin:0;line-height:1.15}
+.ico{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* Shell */
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+.side{background:var(--side);color:var(--side-ink);padding:22px 14px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;gap:22px}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.brand-mark{width:30px;height:30px;border-radius:8px;background:#26324A;display:grid;place-items:center}
+.brand-name{font-family:var(--display);font-size:21px;font-weight:700}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:12px;padding:9px 10px;border:0;background:none;border-radius:8px;color:var(--side-muted);text-align:left;font-weight:500}
+.nav button:hover{background:var(--side-hover);color:var(--side-ink)}
+.nav button[aria-current="true"]{background:var(--side-hover);color:#fff}
+.nav .count{margin-left:auto;font-size:12px;color:var(--side-muted)}
+.side h4{margin:0 10px 8px;font-size:12.5px;font-weight:600;color:var(--side-muted)}
+.lens{display:flex;flex-direction:column;gap:3px}
+.lens button{display:flex;align-items:center;gap:10px;padding:7px 10px;border:0;border-radius:8px;background:none;color:var(--side-ink);text-align:left;font-size:14px;position:relative}
+.lens button:hover{background:var(--side-hover)}
+.lens button[aria-pressed="true"]{background:var(--side-hover)}
+.lens button[aria-pressed="true"]::before{content:"";position:absolute;left:-14px;top:6px;bottom:6px;width:4px;border-radius:0 4px 4px 0;background:var(--c)}
+.lens .tab{width:10px;height:22px;border-radius:3px;background:var(--c);flex:none}
+.lens .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lens .n{font-size:12px;color:var(--side-muted)}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:2px}
+.side-foot .who{font-size:12px;color:var(--side-muted);padding:6px 10px;overflow:hidden;text-overflow:ellipsis}
+
+.main{min-width:0;padding:28px clamp(16px,3.5vw,44px) 110px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.top h1{font-size:clamp(26px,3.2vw,34px)}
+.top .sub{color:var(--muted);margin-top:4px}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.lens-pill{display:inline-flex;align-items:center;gap:8px;padding:4px 6px 4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:600}
+.lens-pill i{width:8px;height:8px;border-radius:2px;background:var(--c)}
+.lens-pill button{border:0;background:var(--surface-2);border-radius:999px;width:22px;height:22px;display:grid;place-items:center;color:var(--muted)}
+
+/* Buttons & inputs */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:14px;color:var(--ink)}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:none;border-color:transparent}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.danger{color:var(--danger)}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+.iconbtn{border:0;background:none;width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--muted)}
+.iconbtn:hover{background:var(--surface-2);color:var(--ink)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;font-weight:600;color:var(--ink-2)}
+.input,select.input,textarea.input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink)}
+textarea.input{min-height:84px;resize:vertical}
+.input:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:transparent}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.toolbar .input{width:auto}
+.search{position:relative;flex:1;min-width:180px;max-width:320px}
+.search .ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search .input{padding-left:34px;width:100%}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;padding:5px 10px;border-radius:7px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+
+/* Panels */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.panel h2{font-size:18px;margin-bottom:12px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.panel-head h2{margin:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+/* Dashboard */
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;margin-bottom:18px;box-shadow:var(--shadow)}
+.hero-line{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.hero-line h2{font-size:clamp(20px,2.4vw,26px);font-weight:500}
+.hero-line h2 b{font-weight:700}
+.spectrum{display:flex;height:46px;border-radius:10px;overflow:hidden;gap:3px}
+.spectrum button{border:0;background:var(--c);flex:var(--w) 1 0;min-width:36px;color:#fff;font-weight:700;font-size:13px;padding:0 12px;text-align:left;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;transition:flex-grow .5s cubic-bezier(.2,.8,.2,1)}
+.spectrum button:hover{filter:brightness(1.08)}
+.spectrum button span{opacity:.85;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.spectrum.empty{background:var(--surface-2);border:1px dashed var(--line);align-items:center;justify-content:center;color:var(--muted);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+.stat{padding:12px 14px;border-radius:10px;background:var(--surface-2)}
+.stat b{display:block;font-family:var(--display);font-size:28px;line-height:1.1}
+.stat span{font-size:13px;color:var(--muted)}
+.stat.alert b{color:var(--danger)}
+.dash{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px}
+.quickadd{display:flex;gap:8px;margin-bottom:12px}
+.quickadd .input:first-child{flex:1}
+.quickadd select{max-width:44%}
+.bars{display:flex;align-items:flex-end;gap:5px;height:84px;margin-top:8px}
+.bars div{flex:1;background:var(--accent-soft);border-radius:4px 4px 2px 2px;min-height:4px;position:relative}
+.bars div.on{background:var(--accent)}
+.bars-x{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px}
+.rolecards{display:grid;gap:10px}
+.rolecard{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface-2);text-align:left;width:100%}
+.rolecard:hover{border-color:var(--line)}
+.ring{--p:0;width:42px;height:42px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center}
+.ring span{width:32px;height:32px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font-size:16px}
+.rolecard b{display:block}
+.rolecard small{color:var(--muted)}
+
+/* Task rows */
+.tlist{display:flex;flex-direction:column}
+.trow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:10px 6px;border-bottom:1px solid var(--line-2)}
+.trow:last-child{border-bottom:0}
+.trow:hover{background:var(--surface-2);border-radius:8px}
+.check{width:22px;height:22px;border-radius:7px;border:2px solid var(--line);background:none;display:grid;place-items:center;padding:0;color:transparent}
+.check:hover{border-color:var(--c,var(--accent))}
+.check.done{background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:#fff}
+.check .ico{width:14px;height:14px;stroke-width:3}
+.tmain{min-width:0;cursor:pointer;border:0;background:none;text-align:left;padding:0}
+.ttitle{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trow.isdone .ttitle{text-decoration:line-through;color:var(--muted);font-weight:500}
+.tmeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px;font-size:12.5px;color:var(--muted);align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:1px 8px;border-radius:var(--r-sm);background:var(--surface-2);border:1px solid var(--line-2);font-size:12px;font-weight:500;color:var(--ink-2);max-width:220px}
+.chip i{width:7px;height:7px;border-radius:2px;background:var(--c);flex:none}
+.chip em{font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tright{display:flex;align-items:center;gap:8px}
+.due{font-size:12.5px;font-weight:600;padding:2px 8px;border-radius:var(--r-sm);white-space:nowrap;color:var(--ink-2);background:var(--surface-2)}
+.due.over{background:var(--danger-soft);color:var(--danger)}
+.due.today{background:var(--warn-soft);color:var(--warn)}
+.prio{width:8px;height:8px;border-radius:50%;flex:none}
+.prio.High{background:var(--danger)} .prio.Medium{background:var(--warn)} .prio.Low{background:var(--line)}
+.status-tag{font-size:12px;padding:1px 7px;border-radius:var(--r-sm);font-weight:600}
+.st-in-progress{background:var(--accent-soft);color:var(--accent)}
+.st-waiting{background:var(--warn-soft);color:var(--warn)}
+.group{margin-bottom:18px}
+.group-h{display:flex;align-items:center;gap:10px;margin:0 0 6px;padding:0 4px}
+.group-h .tab{width:6px;height:20px;border-radius:2px;background:var(--c)}
+.group-h h3{font-size:16px}
+.group-h .muted{font-size:13px}
+.empty{text-align:center;padding:36px 16px;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-family:var(--display);font-size:18px;margin-bottom:4px}
+
+/* Board */
+.board{display:grid;grid-template-columns:repeat(4,minmax(240px,1fr));gap:14px;overflow-x:auto;padding-bottom:8px}
+.col{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-height:240px;display:flex;flex-direction:column;gap:8px}
+.col.over-drop{outline:2px dashed var(--accent);outline-offset:-4px}
+.col-h{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 6px}
+.col-h h3{font-size:15px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:9px;padding:10px 12px;cursor:grab;text-align:left;width:100%}
+.card:hover{box-shadow:var(--shadow)}
+.card.dragging{opacity:.4}
+.card b{display:block;font-weight:600;margin-bottom:6px}
+.card .tmeta{margin-top:0}
+
+/* Calendar */
+.cal-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.cal-head h2{font-size:20px;min-width:180px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--line)}
+.cal .dow{background:var(--surface-2);padding:8px;font-size:12.5px;font-weight:600;color:var(--muted)}
+.cal .day{background:var(--surface);min-height:108px;padding:6px;display:flex;flex-direction:column;gap:3px;border:0;text-align:left;margin:0 0 1px 1px}
+.cal{gap:1px}
+.cal .day{margin:0}
+.cal .day.out{background:var(--surface-2)}
+.cal .day.out .dn{color:var(--muted)}
+.cal .dn{font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.cal .day.is-today .dn span{background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:0 6px}
+.cal .add{opacity:0;border:0;background:none;color:var(--muted);padding:0;width:20px;height:20px;border-radius:5px}
+.cal .day:hover .add{opacity:1}
+.cal .ev{font-size:12px;padding:2px 6px;border-radius:5px;background:color-mix(in srgb,var(--c) 16%,var(--surface));border-left:3px solid var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:0;border-right:0;border-bottom:0;text-align:left;color:var(--ink)}
+.cal .ev.done{text-decoration:line-through;opacity:.6}
+.cal .more{font-size:12px;color:var(--muted);border:0;background:none;text-align:left;padding:0 4px}
+
+/* Matrix */
+.matrix{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.quad{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-height:220px}
+.quad h3{font-size:17px}
+.quad p{margin:2px 0 10px;font-size:13px;color:var(--muted)}
+.quad.q1{border-top:4px solid var(--danger)} .quad.q2{border-top:4px solid var(--accent)} .quad.q3{border-top:4px solid var(--warn)} .quad.q4{border-top:4px solid var(--line)}
+
+/* Roles view */
+.rolesec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);margin-bottom:18px;overflow:hidden}
+.rolesec-h{display:flex;align-items:center;gap:14px;padding:16px 18px;border-bottom:1px solid var(--line-2);background:linear-gradient(90deg,color-mix(in srgb,var(--c) 12%,var(--surface)),var(--surface) 60%)}
+.rolesec-h .emo{width:44px;height:44px;border-radius:12px;background:var(--c);display:grid;place-items:center;font-size:22px}
+.rolesec-h h2{font-size:20px}
+.rolesec-h .desc{font-size:13.5px;color:var(--muted)}
+.rolesec-h .acts{margin-left:auto;display:flex;gap:4px}
+.projs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;padding:16px 18px}
+.proj{border:1px solid var(--line);border-radius:var(--r);padding:14px;background:var(--surface);text-align:left;display:flex;flex-direction:column;gap:8px;width:100%}
+.proj:hover{border-color:var(--c)}
+.proj b{font-size:15.5px}
+.proj .prog{height:6px;border-radius:3px;background:var(--line-2);overflow:hidden}
+.proj .prog i{display:block;height:100%;background:var(--c);border-radius:3px}
+.proj .row{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+.proj.add{border-style:dashed;align-items:center;justify-content:center;color:var(--muted);min-height:118px;font-weight:600;flex-direction:row}
+.pstatus{font-size:12px;font-weight:600;padding:1px 7px;border-radius:var(--r-sm);align-self:flex-start}
+.ps-active{background:var(--ok-soft);color:var(--ok)} .ps-on-hold{background:var(--warn-soft);color:var(--warn)} .ps-done{background:var(--surface-2);color:var(--muted)} .ps-idea{background:var(--accent-soft);color:var(--accent)}
+
+/* Drawer & modal */
+.scrim{position:fixed;inset:0;background:rgba(16,21,31,.45);z-index:40;display:flex;justify-content:flex-end;animation:fade .15s ease}
+.scrim.center{justify-content:center;align-items:center;padding:16px}
+@keyframes fade{from{opacity:0}}
+@keyframes slide{from{transform:translateX(24px);opacity:.5}}
+@keyframes pop{from{transform:translateY(8px) scale(.98);opacity:0}}
+.drawer{width:min(560px,100%);height:100%;background:var(--bg);overflow:auto;animation:slide .2s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+.drawer-h{padding:22px 22px 18px;background:var(--surface);border-bottom:1px solid var(--line);border-top:6px solid var(--c)}
+.drawer-h .crumb{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.drawer-h h2{font-size:24px;margin:6px 0}
+.drawer-b{padding:18px 22px;display:flex;flex-direction:column;gap:16px}
+.modal{width:min(540px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);border-radius:var(--r-lg);box-shadow:0 30px 80px -20px rgba(0,0,0,.5);animation:pop .18s cubic-bezier(.2,.8,.2,1)}
+.modal-h{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 6px}
+.modal-h h2{font-size:20px}
+.modal-b{padding:12px 20px;display:flex;flex-direction:column;gap:14px}
+.modal-f{display:flex;gap:8px;justify-content:flex-end;padding:14px 20px 18px}
+.modal-f .spacer{flex:1}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.swatches label{width:30px;height:30px;border-radius:8px;background:var(--c);cursor:pointer;display:grid;place-items:center;color:#fff}
+.swatches input{position:absolute;opacity:0;pointer-events:none}
+.swatches input:checked+span::after{content:"✓";font-weight:700}
+.swatches input:focus-visible+span{outline:2px solid var(--ink);outline-offset:3px;border-radius:6px}
+.mat{display:flex;gap:12px;align-items:flex-start;padding:10px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface)}
+.mat .mi{width:34px;height:34px;border-radius:9px;background:var(--surface-2);display:grid;place-items:center;color:var(--ink-2);flex:none}
+.mat a{color:var(--accent);font-weight:600;word-break:break-all}
+.mat .body{flex:1;min-width:0}
+.mat .body b{display:block}
+
+/* Data view */
+.tables{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.tcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px}
+.tcard b{font-family:var(--display);font-size:26px;line-height:1}
+.drop{border:2px dashed var(--line);border-radius:var(--r);padding:24px;text-align:center;background:var(--surface-2)}
+.drop.hover{border-color:var(--accent);background:var(--accent-soft)}
+.note{font-size:13.5px;color:var(--ink-2);background:var(--surface-2);border-radius:10px;padding:12px 14px;line-height:1.55}
+.note code{font-size:12.5px;background:var(--surface);padding:1px 5px;border-radius:4px;border:1px solid var(--line-2)}
+.result{font-size:13.5px;margin-top:10px}
+
+/* Auth / setup */
+.gate{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(1200px 500px at 10% -10%,color-mix(in srgb,var(--accent) 18%,transparent),transparent),var(--bg)}
+.gate-card{width:min(440px,100%);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:28px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px}
+.gate-card h1{font-size:30px}
+.gate-tabs{display:flex;gap:4px;margin-top:6px}
+.err{color:var(--danger);font-size:13.5px;min-height:1em}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;font-size:14px;z-index:60;box-shadow:var(--shadow);animation:pop .2s ease;max-width:calc(100% - 32px)}
+.toast.error{background:var(--danger);color:#fff}
+.sync{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--side-muted);padding:4px 10px}
+.sync i{width:7px;height:7px;border-radius:50%;background:#6FCF97}
+.sync.off i{background:#E8B860}
+.fab{display:none}
+.mobilebar{display:none}
+
+@media (max-width:1100px){.dash{grid-template-columns:1fr}.tables{grid-template-columns:1fr 1fr}}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .main{padding:18px 16px 110px}
+  .mtop{display:flex!important}
+  .stats{grid-template-columns:1fr 1fr}
+  .matrix{grid-template-columns:1fr}
+  .board{grid-template-columns:repeat(4,minmax(78vw,1fr));scroll-snap-type:x mandatory}
+  .col{scroll-snap-align:start}
+  .grid2{grid-template-columns:1fr}
+  .cal .day{min-height:64px;padding:4px}
+  .cal .ev{font-size:0;padding:0;height:6px;border-left:0;background:var(--c)}
+  .cal .more{font-size:11px}
+  .mobilebar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--side);padding:6px 6px calc(6px + env(safe-area-inset-bottom));justify-content:space-around}
+  .mobilebar button{border:0;background:none;color:var(--side-muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;padding:6px 4px;border-radius:8px;flex:1}
+  .mobilebar button[aria-current="true"]{color:#fff}
+  .fab{display:grid;position:fixed;right:18px;bottom:calc(76px + env(safe-area-inset-bottom));width:54px;height:54px;border-radius:16px;border:0;background:var(--accent);color:var(--accent-ink);place-items:center;z-index:31;box-shadow:var(--shadow)}
+  .fab .ico{width:24px;height:24px}
+  .top-actions .hide-m{display:none}
+  .quickadd{flex-wrap:wrap}.quickadd select{max-width:none;flex:1}
+  .drawer{width:100%}
+  .ttitle{white-space:normal}
+  .chip{max-width:150px}
+  .modal{max-height:calc(100vh - 16px)}
+  .scrim.center{align-items:flex-end;padding:8px}
+}
+.mtop{display:none;align-items:center;gap:10px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px}
+.mtop .lchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.mtop .lchip i{width:8px;height:8px;border-radius:2px;background:var(--c)}
+.mtop .lchip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+/* =========================================================
+   Compass — roles, projects, tasks & materials
+   ---------------------------------------------------------
+   To connect your own database, fill these two values in
+   (see SETUP.md). Leave them empty to choose on first load.
+   ========================================================= */
+const CONFIG = {
+  SUPABASE_URL: 'https://epppqjhyvjsrsvvmszik.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_N5EsaVkpm_VU4CU8aVudCQ_9JDQHaDw'
+};
+
+/* ---------- Constants ---------- */
+const TABLES = ['roles','projects','tasks','materials'];
+const SCHEMA = {
+  roles:     ['id','name','description','color','icon','sort_order','created_at','updated_at'],
+  projects:  ['id','role_id','name','description','status','start_date','due_date','created_at','updated_at'],
+  tasks:     ['id','project_id','title','description','status','priority','due_date','completed_at','created_at','updated_at'],
+  materials: ['id','project_id','name','type','url','notes','created_at','updated_at']
+};
+const TASK_STATUS = ['To do','In progress','Waiting','Done'];
+const PRIORITY = ['High','Medium','Low'];
+const PROJECT_STATUS = ['Active','On hold','Idea','Done'];
+const MATERIAL_TYPE = ['Link','Document','Note','Contact','Other'];
+const COLORS = ['#3D5AFE','#0F8B8D','#E07A2E','#C2407A','#7B5BD6','#2F9E44','#D4A015','#3B8BC2','#8D6E63','#5C6B7F'];
+const DATE_FIELDS = ['start_date','due_date'];
+
+/* ---------- Helpers ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const slug = s => String(s || '').toLowerCase().replace(/\s+/g, '-');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+  : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); });
+const pad = n => String(n).padStart(2, '0');
+const isoDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseISO = s => { const [y,m,d] = String(s).slice(0,10).split('-').map(Number); return new Date(y, m-1, d); };
+const TODAY = () => isoDate(new Date());
+const addDays = (iso, n) => { const d = parseISO(iso); d.setDate(d.getDate() + n); return isoDate(d); };
+const diffDays = (a, b) => Math.round((parseISO(b) - parseISO(a)) / 86400000);
+const nowISO = () => new Date().toISOString();
+const fmtDate = (iso, opts = {day:'numeric', month:'short'}) => iso ? parseISO(iso).toLocaleDateString('en-GB', opts) : '';
+const lsGet = k => { try { return localStorage.getItem(k); } catch(e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch(e) {} };
+const lsDel = k => { try { localStorage.removeItem(k); } catch(e) {} };
+
+const I = {
+  home:'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+  list:'M9 6h12M9 12h12M9 18h12M4 6h.01M4 12h.01M4 18h.01',
+  board:'M4 4h4.5v16H4zM10 4h4.5v11H10zM16 4h4v7h-4z',
+  cal:'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  matrix:'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  roles:'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 7.5M22 21a7 7 0 0 0-4-6.3',
+  data:'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3',
+  plus:'M12 5v14M5 12h14', check:'M5 12.5 10 17 19 7', x:'M6 6l12 12M18 6 6 18',
+  left:'M15 6l-6 6 6 6', right:'M9 6l6 6-6 6', search:'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
+  edit:'M4 20h4L19 9l-4-4L4 16zM14 6l4 4', trash:'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
+  link:'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',
+  doc:'M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6', note:'M5 4h14v12l-4 4H5zM15 20v-4h4M8 9h8M8 13h5',
+  contact:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0', other:'M12 3l8 4.5v9L12 21l-8-4.5v-9z',
+  down:'M12 4v12M6 10l6 6 6-6M4 20h16', up:'M12 20V8M6 14l6-6 6 6M4 4h16', out:'M15 4h4v16h-4M10 17l5-5-5-5M15 12H4',
+  sun:'M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z',
+  folder:'M3 6h6l2 2h10v11H3z'
+};
+const ico = (n, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+
+/* ---------- State ---------- */
+const S = { roles: [], projects: [], tasks: [], materials: [] };
+const UI = {
+  view: lsGet('compass-view') || 'dashboard',
+  lens: lsGet('compass-lens') || '',
+  q: '', status: 'open', priority: '', groupBy: 'role',
+  calMonth: TODAY().slice(0,7),
+  sep: lsGet('compass-sep') || ';',
+  drawer: null, user: null, online: true
+};
+let B = null;   // backend
+let sb = null;  // supabase client
+
+const roleOf = id => S.roles.find(r => r.id === id);
+const projOf = id => S.projects.find(p => p.id === id);
+const taskRole = t => { const p = projOf(t.project_id); return p ? roleOf(p.role_id) : null; };
+const colorOf = role => role?.color || '#5C6B7F';
+const sortedRoles = () => [...S.roles].sort((a,b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name));
+const isOpen = t => t.status !== 'Done';
+const prioRank = p => ({High:0, Medium:1, Low:2}[p] ?? 1);
+const taskSort = (a, b) => (a.status === 'Done') - (b.status === 'Done') || (a.due_date || '9999').localeCompare(b.due_date || '9999') || prioRank(a.priority) - prioRank(b.priority) || a.title.localeCompare(b.title);
+
+function lensTasks() { return UI.lens ? S.tasks.filter(t => projOf(t.project_id)?.role_id === UI.lens) : S.tasks; }
+function lensProjects() { return UI.lens ? S.projects.filter(p => p.role_id === UI.lens) : S.projects; }
+function filteredTasks() {
+  const q = UI.q.trim().toLowerCase();
+  return lensTasks().filter(t => {
+    if (UI.status === 'open' && !isOpen(t)) return false;
+    if (UI.status && UI.status !== 'open' && UI.status !== 'all' && t.status !== UI.status) return false;
+    if (UI.priority && t.priority !== UI.priority) return false;
+    if (q) { const p = projOf(t.project_id); const hay = [t.title, t.description, p?.name, roleOf(p?.role_id)?.name].join(' ').toLowerCase(); if (!hay.includes(q)) return false; }
+    return true;
+  }).sort(taskSort);
+}
+function prune() {
+  const r = new Set(S.roles.map(x => x.id));
+  S.projects = S.projects.filter(p => r.has(p.role_id));
+  const p = new Set(S.projects.map(x => x.id));
+  S.tasks = S.tasks.filter(t => p.has(t.project_id));
+  S.materials = S.materials.filter(m => p.has(m.project_id));
+  if (UI.lens && !r.has(UI.lens)) UI.lens = '';
+}
+
+/* ---------- Backends ---------- */
+function cleanRow(table, row) {
+  const out = {};
+  for (const k of SCHEMA[table]) {
+    if (!(k in row)) continue;
+    let v = row[k];
+    if (v === '' || v === undefined) v = null;
+    if (k === 'sort_order' && v !== null) v = parseInt(v, 10) || 0;
+    if ((k === 'created_at' || k === 'updated_at') && v === null) continue;
+    out[k] = v;
+  }
+  return out;
+}
+const Local = {
+  key: 'compass-demo-v1', mode: 'demo',
+  async load() {
+    let d = null; try { d = JSON.parse(lsGet(this.key) || 'null'); } catch(e) {}
+    if (!d) { d = seedData(); this.persist(d); }
+    return d;
+  },
+  persist(d = S) { lsSet(this.key, JSON.stringify({roles: d.roles, projects: d.projects, tasks: d.tasks, materials: d.materials})); },
+  async upsert() { this.persist(); },
+  async remove() { this.persist(); },
+  subscribe() {}
+};
+const Remote = {
+  mode: 'cloud',
+  async load() {
+    const out = {};
+    for (const t of TABLES) {
+      let all = [], from = 0;
+      for (;;) {
+        const { data, error } = await sb.from(t).select('*').range(from, from + 999);
+        if (error) throw error;
+        all = all.concat(data); if (data.length < 1000) break; from += 1000;
+      }
+      out[t] = all;
+    }
+    return out;
+  },
+  async upsert(t, rows) {
+    for (let i = 0; i < rows.length; i += 400) {
+      const { error } = await sb.from(t).upsert(rows.slice(i, i + 400).map(r => cleanRow(t, r)));
+      if (error) throw error;
+    }
+  },
+  async remove(t, ids) { const { error } = await sb.from(t).delete().in('id', ids); if (error) throw error; },
+  subscribe() {
+    sb.channel('compass-sync')
+      .on('postgres_changes', { event: '*', schema: 'public' }, p => {
+        const t = p.table; if (!S[t]) return;
+        if (p.eventType === 'DELETE') S[t] = S[t].filter(r => r.id !== p.old.id);
+        else { const i = S[t].findIndex(r => r.id === p.new.id); if (i >= 0) S[t][i] = p.new; else S[t].push(p.new); }
+        scheduleRender();
+      })
+      .subscribe(status => { UI.online = status === 'SUBSCRIBED'; const el = $('#sync'); if (el) el.outerHTML = syncBadge(); });
+    // Catch up when the app comes back to the foreground (phones pause sockets)
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reload(true); });
+  }
+};
+
+/* ---------- Mutations ---------- */
+async function saveRow(table, row) {
+  const isNew = !row.id;
+  if (isNew) { row.id = uid(); row.created_at = nowISO(); }
+  row.updated_at = nowISO();
+  const i = S[table].findIndex(r => r.id === row.id);
+  if (i >= 0) S[table][i] = { ...S[table][i], ...row }; else S[table].push(row);
+  render();
+  try { await B.upsert(table, [S[table].find(r => r.id === row.id)]); }
+  catch (e) { toast('Not saved: ' + e.message, 'error'); reload(); }
+  return row;
+}
+async function deleteRow(table, id) {
+  S[table] = S[table].filter(r => r.id !== id);
+  prune(); render();
+  try { await B.remove(table, [id]); if (B === Local) Local.persist(); }
+  catch (e) { toast('Not deleted: ' + e.message, 'error'); reload(); }
+}
+function setTaskStatus(t, status) {
+  const patch = { id: t.id, status };
+  patch.completed_at = status === 'Done' ? (t.completed_at || nowISO()) : null;
+  return saveRow('tasks', patch);
+}
+async function reload(silent) {
+  try { const d = await B.load(); TABLES.forEach(t => S[t] = d[t] || []); prune(); render(); }
+  catch (e) { if (!silent) toast('Could not load data: ' + e.message, 'error'); }
+}
+let rt = 0; function scheduleRender() { cancelAnimationFrame(rt); rt = requestAnimationFrame(() => { prune(); render(); }); }
+
+/* ---------- Toast ---------- */
+let tt; function toast(msg, kind = '') {
+  document.querySelectorAll('.toast').forEach(n => n.remove());
+  const n = document.createElement('div'); n.className = 'toast ' + kind; n.textContent = msg; n.setAttribute('role','status');
+  document.body.appendChild(n); clearTimeout(tt); tt = setTimeout(() => n.remove(), kind === 'error' ? 6000 : 2600);
+}
+
+/* ---------- Shared fragments ---------- */
+const chip = (role, text) => `<span class="chip" style="--c:${colorOf(role)}"><i></i><em>${esc(text)}</em></span>`;
+function dueBadge(t) {
+  if (!t.due_date || t.status === 'Done') return '';
+  const d = diffDays(TODAY(), t.due_date);
+  if (d < 0) return `<span class="due over">${-d}d overdue</span>`;
+  if (d === 0) return `<span class="due today">Today</span>`;
+  if (d === 1) return `<span class="due">Tomorrow</span>`;
+  if (d < 7) return `<span class="due">${parseISO(t.due_date).toLocaleDateString('en-GB',{weekday:'short'})}</span>`;
+  return `<span class="due">${fmtDate(t.due_date)}</span>`;
+}
+function taskRow(t, { showRole = true, showProject = true } = {}) {
+  const p = projOf(t.project_id), r = p ? roleOf(p.role_id) : null, done = t.status === 'Done';
+  const st = (t.status === 'In progress' || t.status === 'Waiting') ? `<span class="status-tag st-${slug(t.status)}">${esc(t.status)}</span>` : '';
+  return `<div class="trow ${done ? 'isdone' : ''}">
+    <button class="check ${done ? 'done' : ''}" style="--c:${colorOf(r)}" data-action="toggle-task" data-id="${t.id}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}: ${esc(t.title)}">${ico('check')}</button>
+    <button class="tmain" data-action="edit-task" data-id="${t.id}">
+      <span class="ttitle">${esc(t.title)}</span>
+      <span class="tmeta">${showRole && r ? chip(r, r.name) : ''}${showProject && p ? `<span>${esc(p.name)}</span>` : ''}${st}</span>
+    </button>
+    <span class="tright">${t.priority === 'High' ? `<span class="prio High" title="High priority"></span>` : ''}${dueBadge(t)}</span>
+  </div>`;
+}
+const emptyState = (title, text, action = '') => `<div class="empty"><b>${esc(title)}</b>${esc(text)}${action ? `<div style="margin-top:14px">${action}</div>` : ''}</div>`;
+function syncBadge() {
+  if (B === Local) return `<span class="sync off" id="sync"><i></i>Demo data on this device</span>`;
+  return `<span class="sync ${UI.online ? '' : 'off'}" id="sync"><i></i>${UI.online ? 'Synced live' : 'Connecting…'}</span>`;
+}
+function projectOptions(selected) {
+  return sortedRoles().map(r => {
+    const ps = S.projects.filter(p => p.role_id === r.id && (p.status !== 'Done' || p.id === selected)).sort((a,b) => a.name.localeCompare(b.name));
+    if (!ps.length) return '';
+    return `<optgroup label="${esc(r.name)}">${ps.map(p => `<option value="${p.id}" ${p.id === selected ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</optgroup>`;
+  }).join('');
+}
+const opts = (list, sel) => list.map(v => `<option ${v === sel ? 'selected' : ''}>${esc(v)}</option>`).join('');
+
+/* ---------- Layout ---------- */
+const VIEWS = [
+  ['dashboard','Today','home'], ['tasks','Tasks','list'], ['board','Board','board'],
+  ['calendar','Calendar','cal'], ['matrix','Priorities','matrix'], ['roles','Roles & projects','roles'], ['data','Import & export','data']
+];
+function render() {
+  const root = $('#root');
+  if (!B) return;
+  const openCount = r => S.tasks.filter(t => isOpen(t) && projOf(t.project_id)?.role_id === r.id).length;
+  const lensRole = UI.lens ? roleOf(UI.lens) : null;
+  const scrollY = window.scrollY;
+  root.innerHTML = `<div class="app">
+    <aside class="side">
+      <div class="brand"><div class="brand-mark"><svg width="16" height="20" viewBox="0 0 16 20"><path d="M8 0l4 10-4 10-4-10z" fill="#57C4B8"/></svg></div><span class="brand-name">Compass</span></div>
+      <nav class="nav" aria-label="Views">${VIEWS.map(([k,l,i]) => `<button data-action="nav" data-view="${k}" aria-current="${UI.view === k}">${ico(i)}${l}${k === 'tasks' ? `<span class="count">${lensTasks().filter(isOpen).length}</span>` : ''}</button>`).join('')}</nav>
+      <div>
+        <h4>Look through a role</h4>
+        <div class="lens">
+          <button data-action="lens" data-id="" aria-pressed="${!UI.lens}" style="--c:var(--side-muted)"><span class="tab" style="background:linear-gradient(${[...sortedRoles().map(r=>r.color), ...sortedRoles().map(r=>r.color)].join(',') || '#8B97AA,#8B97AA'})"></span><span class="nm">All roles</span><span class="n">${S.tasks.filter(isOpen).length}</span></button>
+          ${sortedRoles().map(r => `<button data-action="lens" data-id="${r.id}" aria-pressed="${UI.lens === r.id}" style="--c:${colorOf(r)}"><span class="tab"></span><span class="nm">${esc(r.icon ? r.icon + ' ' : '')}${esc(r.name)}</span><span class="n">${openCount(r)}</span></button>`).join('')}
+        </div>
+      </div>
+      <div class="side-foot">
+        ${syncBadge()}
+        ${UI.user ? `<span class="who">${esc(UI.user)}</span>` : ''}
+        <div class="nav"><button data-action="theme">${ico('sun')}Light / dark</button>${B === Remote ? `<button data-action="logout">${ico('out')}Sign out</button>` : `<button data-action="leave-demo">${ico('out')}Connect your database</button>`}</div>
+      </div>
+    </aside>
+    <main class="main" id="main">
+      <div class="mtop">
+        <button class="lchip" data-action="lens" data-id="" aria-pressed="${!UI.lens}">All roles</button>
+        ${sortedRoles().map(r => `<button class="lchip" data-action="lens" data-id="${r.id}" aria-pressed="${UI.lens === r.id}" style="--c:${colorOf(r)}"><i></i>${esc(r.name)}</button>`).join('')}
+        <button class="lchip" data-action="nav" data-view="data">${ico('data')}</button>
+      </div>
+      ${viewHTML(lensRole)}
+    </main>
+  </div>
+  <button class="fab" data-action="new-task" aria-label="New task">${ico('plus')}</button>
+  <nav class="mobilebar" aria-label="Views">${VIEWS.slice(0,6).map(([k,l,i]) => `<button data-action="nav" data-view="${k}" aria-current="${UI.view === k}">${ico(i)}<span>${l.split(' ')[0]}</span></button>`).join('')}</nav>
+  ${UI.drawer ? drawerHTML(UI.drawer) : ''}`;
+  window.scrollTo(0, scrollY);
+  if (UI.view === 'board') wireBoard();
+}
+function header(title, sub, lensRole, actions = '') {
+  return `<div class="top"><div><h1>${esc(title)}</h1><div class="sub">${sub}</div></div>
+    <div class="top-actions">${lensRole ? `<span class="lens-pill" style="--c:${colorOf(lensRole)}"><i></i>${esc(lensRole.name)}<button data-action="lens" data-id="" aria-label="Show all roles">${ico('x')}</button></span>` : ''}${actions}</div></div>`;
+}
+function viewHTML(lr) {
+  switch (UI.view) {
+    case 'tasks': return tasksView(lr);
+    case 'board': return boardView(lr);
+    case 'calendar': return calendarView(lr);
+    case 'matrix': return matrixView(lr);
+    case 'roles': return rolesView(lr);
+    case 'data': return dataView();
+    default: return dashboardView(lr);
+  }
+}
+
+/* ---------- Views ---------- */
+function dashboardView(lr) {
+  const T = lensTasks(), today = TODAY();
+  const open = T.filter(isOpen);
+  const overdue = open.filter(t => t.due_date && t.due_date < today);
+  const dueToday = open.filter(t => t.due_date === today);
+  const week = open.filter(t => t.due_date && t.due_date >= today && t.due_date <= addDays(today, 6));
+  const doneWeek = T.filter(t => t.status === 'Done' && t.completed_at && t.completed_at.slice(0,10) >= addDays(today, -6));
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  const focus = [...overdue, ...dueToday, ...open.filter(t => t.status === 'In progress' && !(t.due_date && t.due_date <= today))].filter((t,i,a) => a.indexOf(t) === i).sort(taskSort);
+  const next = open.filter(t => t.due_date && t.due_date > today && t.due_date <= addDays(today, 7)).sort(taskSort);
+
+  const roles = (lr ? [lr] : sortedRoles());
+  const spectrumData = lr
+    ? lensProjects().map(p => ({ id: p.role_id, label: p.name, c: colorOf(lr), n: open.filter(t => t.project_id === p.id).length, proj: p.id }))
+    : roles.map(r => ({ id: r.id, label: r.name, icon: r.icon, c: colorOf(r), n: open.filter(t => projOf(t.project_id)?.role_id === r.id).length }));
+  const spec = spectrumData.filter(x => x.n > 0);
+  const spectrum = spec.length
+    ? `<div class="spectrum" role="list" aria-label="Open tasks per ${lr ? 'project' : 'role'}">${spec.map((x, i) => `<button role="listitem" style="--c:${x.c};--w:${x.n};${lr ? `filter:brightness(${1 + i*0.12})` : ''}" ${x.proj ? `data-action="open-project" data-id="${x.proj}"` : `data-action="lens" data-id="${x.id}"`} title="${esc(x.label)}: ${x.n} open">${x.n}<span>${esc(x.label)}</span></button>`).join('')}</div>`
+    : `<div class="spectrum empty">No open tasks. Add one below to get started.</div>`;
+
+  // Completed per day, last 14 days
+  const days = Array.from({length: 14}, (_, i) => addDays(today, i - 13));
+  const perDay = days.map(d => T.filter(t => t.completed_at && t.completed_at.slice(0,10) === d).length);
+  const max = Math.max(1, ...perDay);
+
+  const roleCards = roles.map(r => {
+    const tasks = S.tasks.filter(t => projOf(t.project_id)?.role_id === r.id);
+    const done = tasks.filter(t => !isOpen(t)).length, pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+    const projs = S.projects.filter(p => p.role_id === r.id && p.status !== 'Done').length;
+    return `<button class="rolecard" data-action="${lr ? 'nav' : 'lens'}" data-view="roles" data-id="${r.id}"><span class="ring" style="--c:${colorOf(r)};--p:${pct}"><span>${esc(r.icon || '•')}</span></span><span><b>${esc(r.name)}</b><small>${projs} active project${projs === 1 ? '' : 's'}, ${tasks.length - done} open task${tasks.length - done === 1 ? '' : 's'}</small></span><span class="muted small">${pct}% done</span></button>`;
+  }).join('');
+
+  return `${header(greet, new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'}), lr)}
+  <section class="hero">
+    <div class="hero-line"><h2>You have <b>${open.length} open task${open.length === 1 ? '' : 's'}</b> ${lr ? `as ${esc(lr.name)}` : `across ${S.roles.length} role${S.roles.length === 1 ? '' : 's'}`}.</h2></div>
+    ${spectrum}
+    <div class="stats">
+      <div class="stat ${overdue.length ? 'alert' : ''}"><b>${overdue.length}</b><span>Overdue</span></div>
+      <div class="stat"><b>${dueToday.length}</b><span>Due today</span></div>
+      <div class="stat"><b>${week.length}</b><span>Due in the next 7 days</span></div>
+      <div class="stat"><b>${doneWeek.length}</b><span>Completed this week</span></div>
+    </div>
+  </section>
+  <div class="dash">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <section class="panel">
+        <div class="panel-head"><h2>Focus now</h2><span class="muted small">Overdue, due today and in progress</span></div>
+        ${S.projects.length ? `<form class="quickadd" data-form="quickadd"><label class="sr" for="qa">New task</label><input class="input" id="qa" name="title" placeholder="Add a task for today…" autocomplete="off" required><select class="input" name="project_id" aria-label="Project">${projectOptions(lensProjects()[0]?.id)}</select><button class="btn primary" type="submit">${ico('plus')}<span class="hide-m">Add</span></button></form>` : ''}
+        ${focus.length ? `<div class="tlist">${focus.map(t => taskRow(t)).join('')}</div>` : S.projects.length ? emptyState('Nothing urgent', 'You are clear for today.') : emptyState('Start with a role', 'Create a role, then a project, then add tasks.', `<button class="btn primary" data-action="new-role">${ico('plus')}New role</button>`)}
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>Coming up this week</h2></div>
+        ${next.length ? `<div class="tlist">${next.map(t => taskRow(t)).join('')}</div>` : emptyState('A quiet week ahead', 'No tasks are due in the next 7 days.')}
+      </section>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <section class="panel">
+        <div class="panel-head"><h2>${lr ? 'This role' : 'Your roles'}</h2>${lr ? '' : `<button class="btn sm ghost" data-action="new-role">${ico('plus')}Role</button>`}</div>
+        <div class="rolecards">${roleCards || emptyState('No roles yet', 'Roles are the hats you wear, like “Dad” or “Engagement manager”.')}</div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h2>Momentum</h2><span class="muted small">Tasks completed per day</span></div>
+        <div class="bars" aria-label="Tasks completed per day, last 14 days">${perDay.map((n, i) => `<div class="${n ? 'on' : ''}" style="height:${Math.max(4, n / max * 100)}%" title="${fmtDate(days[i], {weekday:'short', day:'numeric', month:'short'})}: ${n} completed"></div>`).join('')}</div>
+        <div class="bars-x"><span>${fmtDate(days[0])}</span><span>Today</span></div>
+      </section>
+    </div>
+  </div>`;
+}
+
+function filterBar(withStatus = true) {
+  return `<div class="toolbar">
+    <div class="search">${ico('search')}<input class="input" type="search" placeholder="Search tasks, projects…" value="${esc(UI.q)}" data-bind="q" aria-label="Search"></div>
+    ${withStatus ? `<select class="input" data-bind="status" aria-label="Status"><option value="open" ${UI.status === 'open' ? 'selected' : ''}>Open tasks</option><option value="all" ${UI.status === 'all' ? 'selected' : ''}>All tasks</option>${TASK_STATUS.map(s => `<option ${UI.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select>` : ''}
+    <select class="input" data-bind="priority" aria-label="Priority"><option value="">Any priority</option>${PRIORITY.map(p => `<option ${UI.priority === p ? 'selected' : ''}>${p}</option>`).join('')}</select>
+  </div>`;
+}
+function tasksView(lr) {
+  const list = filteredTasks();
+  const groups = new Map();
+  const key = t => {
+    const p = projOf(t.project_id), r = p ? roleOf(p.role_id) : null;
+    switch (UI.groupBy) {
+      case 'project': return [p?.id, p?.name, r, (r?.name || '') + ' / ' + (p?.name || '')];
+      case 'status': return [t.status, t.status, null, TASK_STATUS.indexOf(t.status)];
+      case 'due': {
+        if (!t.due_date) return ['none', 'No due date', null, 9];
+        const d = diffDays(TODAY(), t.due_date);
+        if (t.status === 'Done') return ['done', 'Done', null, 10];
+        if (d < 0) return ['over', 'Overdue', null, 0]; if (d === 0) return ['today', 'Today', null, 1];
+        if (d < 7) return ['week', 'Next 7 days', null, 2]; if (d < 31) return ['month', 'Later this month', null, 3];
+        return ['later', 'Later', null, 4];
+      }
+      default: return [r?.id, r?.name, r, (r?.sort_order ?? 0) + (r?.name || '')];
+    }
+  };
+  list.forEach(t => { const [k, label, role, sort] = key(t); if (!groups.has(k)) groups.set(k, { label, role, sort, items: [] }); groups.get(k).items.push(t); });
+  const gs = [...groups.values()].sort((a, b) => typeof a.sort === 'number' && typeof b.sort === 'number' ? a.sort - b.sort : String(a.sort).localeCompare(String(b.sort)));
+  return `${header('Tasks', `${list.length} task${list.length === 1 ? '' : 's'} shown`, lr, `<button class="btn primary hide-m" data-action="new-task">${ico('plus')}New task</button>`)}
+    ${filterBar()}
+    <div class="toolbar"><span class="muted small">Group by</span><div class="seg" role="group" aria-label="Group by">${[['role','Role'],['project','Project'],['status','Status'],['due','Due date']].map(([k,l]) => `<button data-action="group" data-id="${k}" aria-pressed="${UI.groupBy === k}">${l}</button>`).join('')}</div></div>
+    ${gs.length ? gs.map(g => `<section class="panel group"><div class="group-h">${g.role ? `<span class="tab" style="--c:${colorOf(g.role)}"></span>` : ''}<h3>${esc(g.label || 'Unknown')}</h3><span class="muted">${g.items.length}</span></div><div class="tlist">${g.items.map(t => taskRow(t, { showRole: UI.groupBy !== 'role' && UI.groupBy !== 'project', showProject: UI.groupBy !== 'project' })).join('')}</div></section>`).join('')
+      : `<div class="panel">${emptyState('No tasks match', 'Try another filter or add a new task.', `<button class="btn primary" data-action="new-task">${ico('plus')}New task</button>`)}</div>`}`;
+}
+
+function boardView(lr) {
+  const saved = UI.status; if (UI.status === 'open') UI.status = 'all';
+  const list = filteredTasks(); UI.status = saved;
+  const recentDone = addDays(TODAY(), -14);
+  return `${header('Board', 'Drag cards between columns to change their status', lr, `<button class="btn primary hide-m" data-action="new-task">${ico('plus')}New task</button>`)}
+  ${filterBar(false)}
+  <div class="board">${TASK_STATUS.map(s => {
+    let items = list.filter(t => t.status === s);
+    if (s === 'Done') items = items.filter(t => !t.completed_at || t.completed_at.slice(0,10) >= recentDone).sort((a,b) => (b.completed_at || '').localeCompare(a.completed_at || ''));
+    return `<div class="col" data-status="${s}"><div class="col-h"><h3>${s}</h3><span class="muted small">${items.length}${s === 'Done' ? ' in 14 days' : ''}</span></div>
+      ${items.map(t => { const p = projOf(t.project_id), r = p ? roleOf(p.role_id) : null; return `<button class="card" draggable="true" data-id="${t.id}" data-action="edit-task" style="--c:${colorOf(r)}"><b>${esc(t.title)}</b><span class="tmeta">${r ? chip(r, p.name) : ''}${t.priority === 'High' ? '<span class="prio High" title="High priority"></span>' : ''}${dueBadge(t)}</span></button>`; }).join('')}
+      <button class="btn ghost sm" data-action="new-task" data-status="${s}">${ico('plus')}Add</button></div>`;
+  }).join('')}</div>`;
+}
+function wireBoard() {
+  let dragId = null;
+  document.querySelectorAll('.card[draggable]').forEach(c => {
+    c.addEventListener('dragstart', e => { dragId = c.dataset.id; c.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragId); });
+    c.addEventListener('dragend', () => c.classList.remove('dragging'));
+  });
+  document.querySelectorAll('.col').forEach(col => {
+    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('over-drop'); });
+    col.addEventListener('dragleave', () => col.classList.remove('over-drop'));
+    col.addEventListener('drop', e => {
+      e.preventDefault(); col.classList.remove('over-drop');
+      const t = S.tasks.find(x => x.id === (dragId || e.dataTransfer.getData('text/plain')));
+      if (t && t.status !== col.dataset.status) setTaskStatus(t, col.dataset.status);
+    });
+  });
+}
+
+function calendarView(lr) {
+  const [y, m] = UI.calMonth.split('-').map(Number);
+  const first = new Date(y, m - 1, 1);
+  const start = new Date(first); start.setDate(1 - ((first.getDay() + 6) % 7)); // Monday start
+  const saved = UI.status; if (UI.status === 'open') UI.status = 'all';
+  const list = filteredTasks(); UI.status = saved;
+  const byDate = {}; list.forEach(t => { if (t.due_date) (byDate[t.due_date.slice(0,10)] ||= []).push(t); });
+  const undated = list.filter(t => !t.due_date && isOpen(t)).length;
+  const today = TODAY();
+  const cells = Array.from({length: 42}, (_, i) => { const d = new Date(start); d.setDate(start.getDate() + i); return d; });
+  const lastNeeded = cells.findIndex((d, i) => i % 7 === 0 && d.getMonth() !== m - 1 && i > 27);
+  const shown = lastNeeded > 0 ? cells.slice(0, lastNeeded) : cells;
+  return `${header('Calendar', 'Tasks by due date', lr, `<button class="btn primary hide-m" data-action="new-task">${ico('plus')}New task</button>`)}
+  ${filterBar(false)}
+  <div class="cal-head"><button class="iconbtn" data-action="cal" data-id="-1" aria-label="Previous month">${ico('left')}</button><h2>${first.toLocaleDateString('en-GB', {month:'long', year:'numeric'})}</h2><button class="iconbtn" data-action="cal" data-id="1" aria-label="Next month">${ico('right')}</button><button class="btn sm" data-action="cal" data-id="0">Today</button><span class="muted small" style="margin-left:auto">${undated} open without a date</span></div>
+  <div class="cal">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => `<div class="dow">${d}</div>`).join('')}
+    ${shown.map(d => { const iso = isoDate(d), items = (byDate[iso] || []).sort(taskSort), max = 3;
+      return `<div class="day ${d.getMonth() !== m - 1 ? 'out' : ''} ${iso === today ? 'is-today' : ''}"><div class="dn"><span>${d.getDate()}</span><button class="add" data-action="new-task" data-date="${iso}" aria-label="Add task on ${fmtDate(iso)}">${ico('plus')}</button></div>
+        ${items.slice(0, max).map(t => `<button class="ev ${t.status === 'Done' ? 'done' : ''}" style="--c:${colorOf(taskRole(t))}" data-action="edit-task" data-id="${t.id}" title="${esc(t.title)}">${esc(t.title)}</button>`).join('')}
+        ${items.length > max ? `<button class="more" data-action="day" data-id="${iso}">+${items.length - max} more</button>` : ''}</div>`; }).join('')}
+  </div>`;
+}
+
+function matrixView(lr) {
+  const list = filteredTasks().filter(isOpen), soon = addDays(TODAY(), 3);
+  const urgent = t => t.due_date && t.due_date <= soon, important = t => t.priority === 'High';
+  const Q = [
+    ['q1', 'Do first', 'High priority and due within 3 days', list.filter(t => important(t) && urgent(t))],
+    ['q2', 'Plan', 'High priority, not yet pressing', list.filter(t => important(t) && !urgent(t))],
+    ['q3', 'Fit in or hand off', 'Due soon, lower priority', list.filter(t => !important(t) && urgent(t))],
+    ['q4', 'Later', 'Lower priority, no time pressure', list.filter(t => !important(t) && !urgent(t))]
+  ];
+  return `${header('Priorities', 'Open tasks sorted by importance (priority) and urgency (due date)', lr)}
+  ${filterBar(false)}
+  <div class="matrix">${Q.map(([c, t, d, items]) => `<section class="quad ${c}"><div class="panel-head" style="margin:0"><h3>${t}</h3><span class="muted small">${items.length}</span></div><p>${d}</p><div class="tlist">${items.map(x => taskRow(x)).join('') || '<div class="muted small" style="padding:8px 0">Nothing here.</div>'}</div></section>`).join('')}</div>`;
+}
+
+function rolesView(lr) {
+  const roles = lr ? [lr] : sortedRoles();
+  return `${header('Roles & projects', 'The hats you wear and what you are working on in each', lr, `<button class="btn" data-action="new-role">${ico('plus')}New role</button><button class="btn primary hide-m" data-action="new-project">${ico('plus')}New project</button>`)}
+  ${roles.length ? roles.map(r => {
+    const ps = S.projects.filter(p => p.role_id === r.id).sort((a, b) => PROJECT_STATUS.indexOf(a.status) - PROJECT_STATUS.indexOf(b.status) || a.name.localeCompare(b.name));
+    return `<section class="rolesec" style="--c:${colorOf(r)}">
+      <div class="rolesec-h"><div class="emo">${esc(r.icon || '•')}</div><div><h2>${esc(r.name)}</h2>${r.description ? `<div class="desc">${esc(r.description)}</div>` : ''}</div>
+        <div class="acts"><button class="iconbtn" data-action="edit-role" data-id="${r.id}" aria-label="Edit role ${esc(r.name)}">${ico('edit')}</button></div></div>
+      <div class="projs">${ps.map(p => {
+        const ts = S.tasks.filter(t => t.project_id === p.id), done = ts.filter(t => !isOpen(t)).length, pct = ts.length ? Math.round(done / ts.length * 100) : 0;
+        const mats = S.materials.filter(x => x.project_id === p.id).length;
+        return `<button class="proj" data-action="open-project" data-id="${p.id}"><span class="pstatus ps-${slug(p.status || 'Active')}">${esc(p.status || 'Active')}</span><b>${esc(p.name)}</b>
+          <span class="prog"><i style="width:${pct}%"></i></span>
+          <span class="row"><span>${done}/${ts.length} tasks done${mats ? `, ${mats} material${mats === 1 ? '' : 's'}` : ''}</span><span>${p.due_date ? fmtDate(p.due_date) : ''}</span></span></button>`;
+      }).join('')}<button class="proj add" data-action="new-project" data-role="${r.id}">${ico('plus')}New project</button></div>
+    </section>`;
+  }).join('') : `<div class="panel">${emptyState('No roles yet', 'Start with the roles you play, for example “Business Engagement Manager”, “Dad” or “Friend”.', `<button class="btn primary" data-action="new-role">${ico('plus')}New role</button>`)}</div>`}`;
+}
+
+function drawerHTML(projectId) {
+  const p = projOf(projectId); if (!p) { UI.drawer = null; return ''; }
+  const r = roleOf(p.role_id), ts = S.tasks.filter(t => t.project_id === p.id).sort(taskSort), mats = S.materials.filter(m => m.project_id === p.id).sort((a, b) => a.name.localeCompare(b.name));
+  const done = ts.filter(t => !isOpen(t)).length;
+  const mIcon = { Link: 'link', Document: 'doc', Note: 'note', Contact: 'contact' };
+  return `<div class="scrim" data-action="close-drawer"><aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(p.name)}" style="--c:${colorOf(r)}" data-stop>
+    <div class="drawer-h">
+      <div class="crumb">${r ? chip(r, r.name) : ''}<span class="pstatus ps-${slug(p.status || 'Active')}">${esc(p.status || 'Active')}</span><span style="margin-left:auto;display:flex;gap:2px"><button class="iconbtn" data-action="edit-project" data-id="${p.id}" aria-label="Edit project">${ico('edit')}</button><button class="iconbtn" data-action="close-drawer" aria-label="Close">${ico('x')}</button></span></div>
+      <h2>${esc(p.name)}</h2>
+      ${p.description ? `<div class="muted" style="white-space:pre-wrap">${esc(p.description)}</div>` : ''}
+      <div class="small muted" style="margin-top:8px">${done} of ${ts.length} tasks done${p.start_date ? `, started ${fmtDate(p.start_date, {day:'numeric', month:'short', year:'numeric'})}` : ''}${p.due_date ? `, due ${fmtDate(p.due_date, {day:'numeric', month:'short', year:'numeric'})}` : ''}</div>
+    </div>
+    <div class="drawer-b">
+      <section class="panel"><div class="panel-head"><h2>Tasks</h2><button class="btn sm" data-action="new-task" data-project="${p.id}">${ico('plus')}Task</button></div>
+        ${ts.length ? `<div class="tlist">${ts.map(t => taskRow(t, { showRole: false, showProject: false })).join('')}</div>` : emptyState('No tasks yet', 'Break this project into the next concrete steps.')}</section>
+      <section class="panel"><div class="panel-head"><h2>Materials</h2><button class="btn sm" data-action="new-material" data-project="${p.id}">${ico('plus')}Material</button></div>
+        ${mats.length ? `<div style="display:flex;flex-direction:column;gap:8px">${mats.map(m => `<div class="mat"><span class="mi">${ico(mIcon[m.type] || 'other')}</span><div class="body"><b>${esc(m.name)}</b>${m.url ? (/^https?:\/\//i.test(m.url) ? `<a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.url)}</a>` : `<span class="small">${esc(m.url)}</span>`) : ''}${m.notes ? `<div class="small muted" style="white-space:pre-wrap">${esc(m.notes)}</div>` : ''}</div><button class="iconbtn" data-action="edit-material" data-id="${m.id}" aria-label="Edit ${esc(m.name)}">${ico('edit')}</button></div>`).join('')}</div>`
+          : emptyState('No materials yet', 'Keep links, documents, notes and contacts for this project here.')}</section>
+    </div></aside></div>`;
+}
+
+function dataView() {
+  const names = { roles: 'Roles', projects: 'Projects', tasks: 'Tasks', materials: 'Materials' };
+  return `${header('Import & export', 'Your four tables as CSV files', null)}
+  <div class="tables">${TABLES.map(t => `<div class="tcard"><span class="muted small">${names[t]}</span><b>${S[t].length}</b><button class="btn sm" data-action="export" data-id="${t}">${ico('down')}Export ${names[t].toLowerCase()}</button></div>`).join('')}</div>
+  <div class="dash">
+    <section class="panel">
+      <h2>Export</h2>
+      <div class="toolbar"><span class="muted small">Column separator</span><div class="seg" role="group" aria-label="Separator"><button data-action="sep" data-id=";" aria-pressed="${UI.sep === ';'}">Semicolon (Excel BE/NL)</button><button data-action="sep" data-id="," aria-pressed="${UI.sep === ','}">Comma</button></div></div>
+      <button class="btn primary" data-action="export-all">${ico('down')}Export all four tables</button>
+      <p class="note" style="margin-top:14px">Files are saved as <b>UTF-8 with a byte-order mark</b>, so é, ë, ç and other accents open correctly in Excel. Each file also carries the readable role and project names next to the IDs, which makes them easy to read and edit.</p>
+    </section>
+    <section class="panel">
+      <h2>Import</h2>
+      <div class="drop" id="drop"><p style="margin:0 0 10px">Drop .csv or .txt files here, or</p><label class="btn">${ico('up')}Choose files<input type="file" accept=".csv,.txt,text/csv,text/plain" multiple hidden id="file"></label></div>
+      <div class="result" id="result"></div>
+      <p class="note" style="margin-top:14px">The table is recognised from the file name (for example <code>tasks.csv</code>). Rows with an existing <code>id</code> are updated; rows without one are added. Instead of IDs you can fill in <code>role_name</code> or <code>project_name</code>, and missing roles or projects are created. Separators (; , or tab) and encodings (UTF-8 or Windows/ANSI) are detected automatically. Dates can be <code>2026-10-31</code> or <code>31/10/2026</code>.</p>
+    </section>
+  </div>`;
+}
+
+/* ---------- Modals (forms) ---------- */
+function openModal(title, body, { onSave, onDelete, saveLabel = 'Save' } = {}) {
+  closeModal();
+  const wrap = document.createElement('div');
+  wrap.className = 'scrim center'; wrap.id = 'modal';
+  wrap.innerHTML = `<form class="modal" role="dialog" aria-modal="true" aria-labelledby="mt" novalidate><div class="modal-h"><h2 id="mt">${esc(title)}</h2><button type="button" class="iconbtn" data-close aria-label="Close">${ico('x')}</button></div>
+    <div class="modal-b">${body}</div>
+    <div class="modal-f">${onDelete ? `<button type="button" class="btn ghost danger" data-del>${ico('trash')}Delete</button>` : ''}<span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button class="btn primary" type="submit">${esc(saveLabel)}</button></div></form>`;
+  document.body.appendChild(wrap);
+  const form = wrap.querySelector('form');
+  wrap.addEventListener('mousedown', e => { if (e.target === wrap) closeModal(); });
+  wrap.querySelectorAll('[data-close]').forEach(b => b.onclick = closeModal);
+  if (onDelete) wrap.querySelector('[data-del]').onclick = () => { if (confirm('Delete this permanently?')) { closeModal(); onDelete(); } };
+  form.onsubmit = e => {
+    e.preventDefault();
+    const req = [...form.querySelectorAll('[required]')].find(el => !el.value.trim());
+    if (req) { req.focus(); req.style.outline = '2px solid var(--danger)'; return; }
+    const data = Object.fromEntries(new FormData(form).entries());
+    closeModal(); onSave(data);
+  };
+  setTimeout(() => form.querySelector('input,select,textarea')?.focus(), 30);
+}
+function closeModal() { $('#modal')?.remove(); }
+
+function taskForm(t = {}, defaults = {}) {
+  if (!S.projects.length) { toast('Create a project first, then add tasks to it.'); UI.view = 'roles'; render(); return; }
+  const pid = t.project_id || defaults.project || (UI.lens ? lensProjects()[0]?.id : null) || S.projects[0].id;
+  openModal(t.id ? 'Edit task' : 'New task', `
+    <div class="field"><label for="f-title">Title</label><input class="input" id="f-title" name="title" value="${esc(t.title)}" required></div>
+    <div class="field"><label for="f-proj">Project</label><select class="input" id="f-proj" name="project_id">${projectOptions(pid)}</select></div>
+    <div class="grid2"><div class="field"><label for="f-st">Status</label><select class="input" id="f-st" name="status">${opts(TASK_STATUS, t.status || defaults.status || 'To do')}</select></div>
+    <div class="field"><label for="f-pr">Priority</label><select class="input" id="f-pr" name="priority">${opts(PRIORITY, t.priority || 'Medium')}</select></div></div>
+    <div class="field"><label for="f-due">Due date</label><input class="input" type="date" id="f-due" name="due_date" value="${esc((t.due_date || defaults.date || '').slice(0,10))}"></div>
+    <div class="field"><label for="f-desc">Notes</label><textarea class="input" id="f-desc" name="description">${esc(t.description)}</textarea></div>`,
+    { saveLabel: t.id ? 'Save task' : 'Add task',
+      onSave: d => { const row = { ...d, id: t.id }; if (!t.id) delete row.id; row.completed_at = d.status === 'Done' ? (t.completed_at || nowISO()) : null; saveRow('tasks', row).then(() => toast(t.id ? 'Task saved' : 'Task added')); },
+      onDelete: t.id ? () => deleteRow('tasks', t.id) : null });
+}
+function projectForm(p = {}, defaults = {}) {
+  if (!S.roles.length) { toast('Create a role first.'); return roleForm(); }
+  const rid = p.role_id || defaults.role || UI.lens || sortedRoles()[0].id;
+  openModal(p.id ? 'Edit project' : 'New project', `
+    <div class="field"><label for="f-n">Name</label><input class="input" id="f-n" name="name" value="${esc(p.name)}" required></div>
+    <div class="grid2"><div class="field"><label for="f-r">Role</label><select class="input" id="f-r" name="role_id">${sortedRoles().map(r => `<option value="${r.id}" ${r.id === rid ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select></div>
+    <div class="field"><label for="f-s">Status</label><select class="input" id="f-s" name="status">${opts(PROJECT_STATUS, p.status || 'Active')}</select></div></div>
+    <div class="grid2"><div class="field"><label for="f-sd">Start date</label><input class="input" type="date" id="f-sd" name="start_date" value="${esc(p.start_date || '')}"></div>
+    <div class="field"><label for="f-dd">Due date</label><input class="input" type="date" id="f-dd" name="due_date" value="${esc(p.due_date || '')}"></div></div>
+    <div class="field"><label for="f-d">Description</label><textarea class="input" id="f-d" name="description">${esc(p.description)}</textarea></div>`,
+    { saveLabel: p.id ? 'Save project' : 'Create project',
+      onSave: d => { const row = { ...d }; if (p.id) row.id = p.id; saveRow('projects', row).then(r => { toast(p.id ? 'Project saved' : 'Project created'); if (!p.id) { UI.drawer = r.id; render(); } }); },
+      onDelete: p.id ? () => { const n = S.tasks.filter(t => t.project_id === p.id).length; UI.drawer = null; deleteRow('projects', p.id); if (n) toast(`Project and its ${n} task${n === 1 ? '' : 's'} deleted`); } : null });
+}
+function roleForm(r = {}) {
+  const color = r.color || COLORS[S.roles.length % COLORS.length];
+  openModal(r.id ? 'Edit role' : 'New role', `
+    <div class="grid2" style="grid-template-columns:90px 1fr"><div class="field"><label for="f-i">Icon</label><input class="input" id="f-i" name="icon" value="${esc(r.icon || '')}" maxlength="4" placeholder="💼" style="text-align:center;font-size:18px"></div>
+    <div class="field"><label for="f-n">Name</label><input class="input" id="f-n" name="name" value="${esc(r.name)}" required placeholder="For example: Dad"></div></div>
+    <div class="field"><label>Colour</label><div class="swatches">${COLORS.map(c => `<label style="--c:${c}"><input type="radio" name="color" value="${c}" ${c === color ? 'checked' : ''}><span></span></label>`).join('')}</div></div>
+    <div class="field"><label for="f-d">Description</label><textarea class="input" id="f-d" name="description" placeholder="What this role means to you">${esc(r.description)}</textarea></div>
+    <div class="field"><label for="f-o">Order in the list</label><input class="input" type="number" id="f-o" name="sort_order" value="${esc(r.sort_order ?? S.roles.length + 1)}" style="width:120px"></div>`,
+    { saveLabel: r.id ? 'Save role' : 'Create role',
+      onSave: d => { const row = { ...d, sort_order: parseInt(d.sort_order, 10) || 0 }; if (r.id) row.id = r.id; saveRow('roles', row).then(() => toast(r.id ? 'Role saved' : 'Role created')); },
+      onDelete: r.id ? () => deleteRow('roles', r.id).then(() => toast('Role and everything in it deleted')) : null });
+}
+function materialForm(m = {}, defaults = {}) {
+  const pid = m.project_id || defaults.project || S.projects[0]?.id;
+  openModal(m.id ? 'Edit material' : 'New material', `
+    <div class="field"><label for="f-n">Name</label><input class="input" id="f-n" name="name" value="${esc(m.name)}" required></div>
+    <div class="grid2"><div class="field"><label for="f-t">Type</label><select class="input" id="f-t" name="type">${opts(MATERIAL_TYPE, m.type || 'Link')}</select></div>
+    <div class="field"><label for="f-p">Project</label><select class="input" id="f-p" name="project_id">${projectOptions(pid)}</select></div></div>
+    <div class="field"><label for="f-u">Link or location</label><input class="input" id="f-u" name="url" value="${esc(m.url)}" placeholder="https://… or a file path"></div>
+    <div class="field"><label for="f-no">Notes</label><textarea class="input" id="f-no" name="notes">${esc(m.notes)}</textarea></div>`,
+    { saveLabel: m.id ? 'Save material' : 'Add material',
+      onSave: d => { const row = { ...d }; if (m.id) row.id = m.id; saveRow('materials', row).then(() => toast(m.id ? 'Material saved' : 'Material added')); },
+      onDelete: m.id ? () => deleteRow('materials', m.id) : null });
+}
+function dayList(iso) {
+  const items = lensTasks().filter(t => (t.due_date || '').slice(0,10) === iso).sort(taskSort);
+  openModal(fmtDate(iso, {weekday:'long', day:'numeric', month:'long'}), `<div class="tlist">${items.map(t => taskRow(t)).join('')}</div>`, { saveLabel: 'Add task', onSave: () => taskForm({}, { date: iso }) });
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]'); if (!el) return;
+  const a = el.dataset.action, id = el.dataset.id;
+  if (a === 'close-drawer' && el.classList.contains('scrim') && e.target.closest('[data-stop]')) return;
+  switch (a) {
+    case 'nav': UI.view = el.dataset.view; lsSet('compass-view', UI.view); UI.drawer = null; if (id && el.dataset.view === 'roles') { UI.lens = id; } render(); window.scrollTo(0, 0); break;
+    case 'lens': UI.lens = id || ''; lsSet('compass-lens', UI.lens); render(); break;
+    case 'group': UI.groupBy = id; render(); break;
+    case 'sep': UI.sep = id; lsSet('compass-sep', id); render(); break;
+    case 'cal': { if (id === '0') UI.calMonth = TODAY().slice(0,7); else { const [y, m] = UI.calMonth.split('-').map(Number); const d = new Date(y, m - 1 + Number(id), 1); UI.calMonth = `${d.getFullYear()}-${pad(d.getMonth()+1)}`; } render(); break; }
+    case 'day': dayList(id); break;
+    case 'toggle-task': { e.stopPropagation(); const t = S.tasks.find(x => x.id === id); if (t) setTaskStatus(t, t.status === 'Done' ? 'To do' : 'Done'); break; }
+    case 'edit-task': { const t = S.tasks.find(x => x.id === id); if (t) taskForm(t); break; }
+    case 'new-task': taskForm({}, { project: el.dataset.project, status: el.dataset.status, date: el.dataset.date }); break;
+    case 'new-project': projectForm({}, { role: el.dataset.role }); break;
+    case 'edit-project': projectForm(projOf(id)); break;
+    case 'open-project': UI.drawer = id; render(); break;
+    case 'close-drawer': UI.drawer = null; render(); break;
+    case 'new-role': roleForm(); break;
+    case 'edit-role': roleForm(roleOf(id)); break;
+    case 'new-material': materialForm({}, { project: el.dataset.project }); break;
+    case 'edit-material': materialForm(S.materials.find(m => m.id === id)); break;
+    case 'export': exportTable(id); break;
+    case 'export-all': TABLES.forEach((t, i) => setTimeout(() => exportTable(t), i * 350)); break;
+    case 'theme': { const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); const nx = cur === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = nx; lsSet('compass-theme', nx); break; }
+    case 'logout': sb.auth.signOut().then(() => location.reload()); break;
+    case 'leave-demo': if (confirm('Leave demo mode and connect your own database? Demo data stays on this device only.')) { lsDel('compass-mode'); location.reload(); } break;
+  }
+});
+document.addEventListener('input', e => {
+  const b = e.target.dataset?.bind; if (!b) return;
+  UI[b] = e.target.value;
+  if (b === 'q') { const pos = e.target.selectionStart; render(); const n = $('[data-bind="q"]'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }
+  else render();
+});
+document.addEventListener('submit', e => {
+  if (e.target.dataset.form !== 'quickadd') return;
+  e.preventDefault();
+  const d = Object.fromEntries(new FormData(e.target).entries());
+  if (!d.title.trim()) return;
+  saveRow('tasks', { title: d.title.trim(), project_id: d.project_id, status: 'To do', priority: 'Medium', due_date: TODAY() }).then(() => { toast('Task added'); $('#qa')?.focus(); });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { if ($('#modal')) closeModal(); else if (UI.drawer) { UI.drawer = null; render(); } }
+  if (e.key === 'n' && !e.metaKey && !e.ctrlKey && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !$('#modal') && B) { e.preventDefault(); taskForm(); }
+});
+document.addEventListener('change', e => { if (e.target.id === 'file') importFiles([...e.target.files]); });
+document.addEventListener('dragover', e => { const d = e.target.closest?.('#drop'); if (d) { e.preventDefault(); d.classList.add('hover'); } });
+document.addEventListener('dragleave', e => { e.target.closest?.('#drop')?.classList.remove('hover'); });
+document.addEventListener('drop', e => { const d = e.target.closest?.('#drop'); if (d) { e.preventDefault(); d.classList.remove('hover'); importFiles([...e.dataTransfer.files]); } });
+
+/* ---------- CSV export ---------- */
+function csvCell(v, sep) {
+  if (v === null || v === undefined) return '';
+  const s = String(v);
+  return /["\r\n]/.test(s) || s.includes(sep) || /^\s|\s$/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function exportRows(t) {
+  const extra = { projects: ['role_name'], tasks: ['project_name','role_name'], materials: ['project_name','role_name'] }[t] || [];
+  const cols = [...SCHEMA[t], ...extra];
+  const rows = [...S[t]].map(r => {
+    const o = { ...r };
+    if (t === 'projects') o.role_name = roleOf(r.role_id)?.name || '';
+    if (t === 'tasks' || t === 'materials') { const p = projOf(r.project_id); o.project_name = p?.name || ''; o.role_name = roleOf(p?.role_id)?.name || ''; }
+    return o;
+  });
+  return { cols, rows };
+}
+async function exportTable(t) {
+  const { cols, rows } = exportRows(t), sep = UI.sep;
+  const text = '﻿' + [cols.join(sep), ...rows.map(r => cols.map(c => csvCell(r[c], sep)).join(sep))].join('\r\n');
+  const filename = `${t}.csv`;
+  const blob = new Blob([text], { type: 'text/csv;charset=utf-8' });
+  // Inside claude.ai previews, a sandbox may block plain downloads: use the downloads capability if present
+  const dl = window.claude?.use ? await window.claude.use('downloads').catch(() => null) : null;
+  if (dl) { try { await dl.save({ filename, data: blob }); return; } catch (e) { /* fall through */ } }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast(`Exported ${rows.length} ${t}`);
+}
+
+/* ---------- CSV import ---------- */
+function decodeText(buf) {
+  const bytes = new Uint8Array(buf);
+  if (bytes[0] === 0xFF && bytes[1] === 0xFE) return new TextDecoder('utf-16le').decode(buf);
+  if (bytes[0] === 0xFE && bytes[1] === 0xFF) return new TextDecoder('utf-16be').decode(buf);
+  try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); }
+  catch (e) { return new TextDecoder('windows-1252').decode(buf); }   // Excel "CSV (;)" / ANSI files
+}
+function detectSep(text) {
+  const line = text.split(/\r?\n/)[0] || '';
+  const count = ch => { let n = 0, q = false; for (const c of line) { if (c === '"') q = !q; else if (c === ch && !q) n++; } return n; };
+  return ['\t', ';', ','].map(s => [s, count(s)]).sort((a, b) => b[1] - a[1])[0][0];
+}
+function parseCSV(text, sep) {
+  text = text.replace(/^﻿/, '');
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i+1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === sep) { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i+1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+    else cell += c;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim() !== ''));
+}
+function normDate(v) {
+  v = String(v || '').trim(); if (!v) return null;
+  let m;
+  if ((m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
+  if ((m = v.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})/))) return `${m[3]}-${pad(m[2])}-${pad(m[1])}`;
+  return undefined;
+}
+function normTimestamp(v) { v = String(v || '').trim(); if (!v) return null; const d = new Date(v); if (!isNaN(d)) return d.toISOString(); const nd = normDate(v); return nd ? new Date(nd + 'T12:00:00').toISOString() : null; }
+function pickEnum(v, list, def) { const s = String(v || '').trim().toLowerCase(); return list.find(x => x.toLowerCase() === s) || def; }
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function guessTable(name, header) {
+  const n = name.toLowerCase();
+  for (const t of TABLES) if (n.includes(t) || n.includes(t.slice(0, -1))) return t;
+  if (header.includes('title')) return 'tasks';
+  if (header.includes('type') || header.includes('url')) return 'materials';
+  if (header.includes('role_id') || header.includes('role_name')) return 'projects';
+  if (header.includes('name')) return 'roles';
+  return null;
+}
+async function importFiles(files) {
+  const res = $('#result'); if (!files.length) return;
+  const order = f => TABLES.indexOf(guessTable(f.name, []));
+  files.sort((a, b) => order(a) - order(b));   // roles before projects before tasks
+  const report = [];
+  for (const f of files) {
+    try {
+      const text = decodeText(await f.arrayBuffer());
+      const sep = detectSep(text), grid = parseCSV(text, sep);
+      if (grid.length < 2) { report.push(`${f.name}: no data rows found`); continue; }
+      const header = grid[0].map(h => h.trim().toLowerCase().replace(/\s+/g, '_'));
+      const t = guessTable(f.name, header);
+      if (!t) { report.push(`${f.name}: could not tell which table this is. Name the file roles.csv, projects.csv, tasks.csv or materials.csv.`); continue; }
+      const objs = grid.slice(1).map(r => Object.fromEntries(header.map((h, i) => [h, (r[i] ?? '').trim()])));
+      const r = await importRows(t, objs);
+      report.push(`${f.name} → ${t}: ${r.added} added, ${r.updated} updated${r.created.length ? `, created ${r.created.join(', ')}` : ''}${r.skipped.length ? `. Skipped ${r.skipped.length}: ${r.skipped.slice(0, 3).join('; ')}${r.skipped.length > 3 ? '…' : ''}` : ''}`);
+    } catch (e) { report.push(`${f.name}: ${e.message}`); }
+  }
+  if (res) res.innerHTML = report.map(x => `<div>${esc(x)}</div>`).join('');
+  render(); const r2 = $('#result'); if (r2) r2.innerHTML = report.map(x => `<div>${esc(x)}</div>`).join('');
+  toast('Import finished');
+}
+async function importRows(t, objs) {
+  const out = { added: 0, updated: 0, skipped: [], created: [] };
+  const rows = [], newRoles = [], newProjects = [];
+  const findRole = name => { const n = String(name || '').trim().toLowerCase(); return n ? (S.roles.find(r => r.name.trim().toLowerCase() === n) || newRoles.find(r => r.name.toLowerCase() === n)) : null; };
+  const ensureRole = name => { let r = findRole(name); if (!r && name) { r = { id: uid(), name: name.trim(), color: COLORS[(S.roles.length + newRoles.length) % COLORS.length], sort_order: S.roles.length + newRoles.length + 1, created_at: nowISO(), updated_at: nowISO() }; newRoles.push(r); out.created.push(`role “${r.name}”`); } return r; };
+  const findProject = (name, roleName) => {
+    const n = String(name || '').trim().toLowerCase(); if (!n) return null;
+    const role = findRole(roleName);
+    const pool = [...S.projects, ...newProjects].filter(p => p.name.trim().toLowerCase() === n);
+    return (role && pool.find(p => p.role_id === role.id)) || pool[0] || null;
+  };
+  objs.forEach((o, idx) => {
+    const line = `row ${idx + 2}`;
+    const row = {};
+    for (const k of SCHEMA[t]) if (k in o) row[k] = o[k];
+    if (row.id && !UUID_RE.test(row.id)) { out.skipped.push(`${line} has an invalid id`); return; }
+    const exists = row.id && S[t].some(x => x.id === row.id);
+    if (!row.id) row.id = uid();
+    for (const k of DATE_FIELDS) if (k in row) { const d = normDate(row[k]); if (d === undefined) { out.skipped.push(`${line}: date “${row[k]}” not understood`); return; } row[k] = d; }
+    if ('due_date' in row && t === 'tasks') { const d = normDate(row.due_date); row.due_date = d === undefined ? null : d; }
+    for (const k of ['created_at','updated_at','completed_at']) if (k in row) row[k] = normTimestamp(row[k]);
+    if (t === 'roles') {
+      if (!row.name) { out.skipped.push(`${line} has no name`); return; }
+      if (!row.color || !/^#[0-9a-f]{6}$/i.test(row.color)) row.color = exists ? (S.roles.find(x => x.id === row.id)?.color) : COLORS[(S.roles.length + rows.length) % COLORS.length];
+    }
+    if (t === 'projects') {
+      if (!row.name) { out.skipped.push(`${line} has no name`); return; }
+      if (!row.role_id || !(S.roles.some(r => r.id === row.role_id) || newRoles.some(r => r.id === row.role_id))) {
+        const r = ensureRole(o.role_name); if (!r) { out.skipped.push(`${line}: unknown role`); return; } row.role_id = r.id;
+      }
+      row.status = pickEnum(row.status, PROJECT_STATUS, 'Active');
+    }
+    if (t === 'tasks' || t === 'materials') {
+      if (t === 'tasks' && !row.title) { out.skipped.push(`${line} has no title`); return; }
+      if (t === 'materials' && !row.name) { out.skipped.push(`${line} has no name`); return; }
+      if (!row.project_id || !S.projects.some(p => p.id === row.project_id) && !newProjects.some(p => p.id === row.project_id)) {
+        let p = findProject(o.project_name, o.role_name);
+        if (!p && o.project_name) { const r = ensureRole(o.role_name); if (r) { p = { id: uid(), role_id: r.id, name: o.project_name.trim(), status: 'Active', created_at: nowISO(), updated_at: nowISO() }; newProjects.push(p); out.created.push(`project “${p.name}”`); } }
+        if (!p) { out.skipped.push(`${line}: unknown project${o.project_name ? ' “' + o.project_name + '” (add role_name to create it)' : ''}`); return; }
+        row.project_id = p.id;
+      }
+      if (t === 'tasks') { row.status = pickEnum(row.status, TASK_STATUS, 'To do'); row.priority = pickEnum(row.priority, PRIORITY, 'Medium'); if (row.status === 'Done' && !row.completed_at) row.completed_at = nowISO(); if (row.status !== 'Done') row.completed_at = null; }
+      if (t === 'materials') row.type = pickEnum(row.type, MATERIAL_TYPE, 'Other');
+    }
+    if (!row.created_at) row.created_at = nowISO();
+    row.updated_at = nowISO();
+    exists ? out.updated++ : out.added++;
+    rows.push(row);
+  });
+  if (newRoles.length) { await B.upsert('roles', newRoles); S.roles.push(...newRoles); }
+  if (newProjects.length) { await B.upsert('projects', newProjects); S.projects.push(...newProjects); }
+  if (rows.length) {
+    // Merge with existing rows so a partial file (only some columns) never blanks other fields
+    const merged = rows.map(r => ({ ...(S[t].find(x => x.id === r.id) || {}), ...r }));
+    await B.upsert(t, merged);
+    merged.forEach(r => { const i = S[t].findIndex(x => x.id === r.id); if (i >= 0) S[t][i] = r; else S[t].push(r); });
+  }
+  if (B === Local) Local.persist();
+  return out;
+}
+
+/* ---------- Demo data ---------- */
+function seedData() {
+  const T = TODAY(), d = n => addDays(T, n), ts = n => new Date(parseISO(d(n)).getTime() + 15 * 3600e3).toISOString();
+  const R = (name, icon, color, description, sort_order) => ({ id: uid(), name, icon, color, description, sort_order, created_at: nowISO(), updated_at: nowISO() });
+  const work = R('Business Engagement Manager', '💼', '#3D5AFE', 'Bridge between the business and IT', 1);
+  const dad = R('Dad', '🏡', '#E07A2E', 'Family, school and weekends', 2);
+  const friend = R('Friend', '🤝', '#0F8B8D', 'Staying close to the people who matter', 3);
+  const me = R('Myself', '🌱', '#7B5BD6', 'Health, learning and recharging', 4);
+  const P = (role, name, status, due, description = '') => ({ id: uid(), role_id: role.id, name, status, start_date: d(-20), due_date: due, description, created_at: nowISO(), updated_at: nowISO() });
+  const p1 = P(work, 'Q4 roadmap with Sales', 'Active', d(24), 'Align business priorities with the IT delivery plan for Q4.');
+  const p2 = P(work, 'Customer portal requirements', 'Active', d(45));
+  const p3 = P(work, 'Team onboarding guide', 'On hold', null);
+  const p4 = P(dad, 'Verjaardagsfeest Emma', 'Active', d(12), 'Thema: dino’s. Max. 12 kinderen.');
+  const p5 = P(dad, 'School year', 'Active', null);
+  const p6 = P(friend, 'Weekend Ardennen', 'Idea', d(40));
+  const p7 = P(me, 'Run 10 km', 'Active', d(60));
+  const Tk = (p, title, status, priority, due, doneAgo, description = '') => ({ id: uid(), project_id: p.id, title, status, priority, due_date: due === null ? null : d(due), completed_at: status === 'Done' ? ts(-doneAgo) : null, description, created_at: nowISO(), updated_at: nowISO() });
+  const tasks = [
+    Tk(p1, 'Prepare steering committee deck', 'In progress', 'High', 1), Tk(p1, 'Collect demand from Sales leads', 'Done', 'High', -3, 4),
+    Tk(p1, 'Prioritise backlog with product owners', 'To do', 'High', 3), Tk(p1, 'Send summary to stakeholders', 'To do', 'Medium', 6),
+    Tk(p2, 'Interview 5 key users', 'In progress', 'Medium', 8), Tk(p2, 'Draft requirements document', 'To do', 'High', 14),
+    Tk(p2, 'Check privacy needs with the DPO', 'Waiting', 'Medium', 5), Tk(p2, 'Kick-off meeting', 'Done', 'Medium', -6, 6),
+    Tk(p3, 'List tools new joiners need', 'To do', 'Low', null), Tk(p1, 'Book room for the review', 'Done', 'Low', -1, 1),
+    Tk(p4, 'Uitnodigingen maken en versturen', 'To do', 'High', 0), Tk(p4, 'Taart bestellen bij de bakker', 'To do', 'Medium', 7),
+    Tk(p4, 'Spelletjes bedenken (dino-zoektocht)', 'To do', 'Low', 10), Tk(p5, 'Oudercontact inschrijven', 'Done', 'Medium', -2, 2),
+    Tk(p5, 'Turnzak en sportschoenen kopen', 'To do', 'Medium', -1), Tk(p6, 'Data prikken met de vrienden', 'Waiting', 'Medium', 9),
+    Tk(p6, 'Gîte zoeken in La Roche-en-Ardenne', 'To do', 'Low', null), Tk(p7, 'Run 5 km', 'Done', 'Medium', -5, 5),
+    Tk(p7, 'Run 6 km', 'Done', 'Medium', -2, 3), Tk(p7, 'Run 7 km', 'To do', 'Medium', 2), Tk(p7, 'New running shoes', 'To do', 'Low', null),
+    Tk(p2, 'Review wireframes with UX', 'Done', 'Medium', -8, 9), Tk(p1, 'Align budget with Finance', 'Done', 'High', -10, 11)
+  ];
+  const M = (p, name, type, url, notes = '') => ({ id: uid(), project_id: p.id, name, type, url, notes, created_at: nowISO(), updated_at: nowISO() });
+  const materials = [
+    M(p1, 'Roadmap draft', 'Document', 'Teams > BEM > Roadmap_Q4.pptx'), M(p1, 'Sales lead list', 'Note', '', 'Contacts per region, update monthly.'),
+    M(p2, 'User interview template', 'Link', 'https://example.com/template'), M(p4, 'Bakkerij — tel. 03 000 00 00', 'Contact', '', 'Bestellen min. 5 dagen op voorhand. Crème au beurre, geen noten.'),
+    M(p6, 'Ideeën voor wandelingen', 'Link', 'https://example.com/ardennen')
+  ];
+  return { roles: [work, dad, friend, me], projects: [p1, p2, p3, p4, p5, p6, p7], tasks, materials };
+}
+
+/* ---------- Gates: setup & sign-in ---------- */
+function getConfig() {
+  const saved = JSON.parse(lsGet('compass-config') || '{}');
+  return { url: CONFIG.SUPABASE_URL || saved.url || '', key: CONFIG.SUPABASE_ANON_KEY || saved.key || '' };
+}
+function gate(html) { $('#root').innerHTML = `<div class="gate"><div class="gate-card">${html}</div></div>`; }
+function showSetup() {
+  gate(`<div class="brand" style="padding:0;color:var(--ink)"><div class="brand-mark" style="background:var(--ink)"><svg width="16" height="20" viewBox="0 0 16 20"><path d="M8 0l4 10-4 10-4-10z" fill="#57C4B8"/></svg></div><span class="brand-name">Compass</span></div>
+    <h1>Your roles, projects and tasks in one place</h1>
+    <p class="muted" style="margin:0">Connect your Supabase database so every device shows the same data. SETUP.md explains where to find these two values.</p>
+    <form id="setup" style="display:flex;flex-direction:column;gap:12px">
+      <div class="field"><label for="s-url">Project URL</label><input class="input" id="s-url" placeholder="https://abcd1234.supabase.co" required></div>
+      <div class="field"><label for="s-key">Anon public key</label><input class="input" id="s-key" placeholder="eyJhbGciOi…" required></div>
+      <div class="err" id="s-err"></div>
+      <button class="btn primary" type="submit">Connect</button>
+    </form>
+    <button class="btn ghost" id="demo">Try it with demo data first</button>`);
+  $('#setup').onsubmit = e => {
+    e.preventDefault();
+    const url = $('#s-url').value.trim().replace(/\/+$/, ''), key = $('#s-key').value.trim();
+    if (!/^https:\/\/.+/.test(url)) { $('#s-err').textContent = 'The project URL starts with https:// and ends in .supabase.co'; return; }
+    lsSet('compass-config', JSON.stringify({ url, key })); lsDel('compass-mode'); boot();
+  };
+  $('#demo').onclick = () => { lsSet('compass-mode', 'demo'); boot(); };
+}
+function showLogin(msg = '') {
+  let mode = 'in';
+  const draw = () => gate(`<div class="brand" style="padding:0;color:var(--ink)"><div class="brand-mark" style="background:var(--ink)"><svg width="16" height="20" viewBox="0 0 16 20"><path d="M8 0l4 10-4 10-4-10z" fill="#57C4B8"/></svg></div><span class="brand-name">Compass</span></div>
+    <h1>${mode === 'in' ? 'Sign in' : 'Create your account'}</h1>
+    <form id="auth" style="display:flex;flex-direction:column;gap:12px">
+      <div class="field"><label for="a-e">Email</label><input class="input" id="a-e" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="a-p">Password</label><input class="input" id="a-p" type="password" autocomplete="${mode === 'in' ? 'current-password' : 'new-password'}" minlength="8" required></div>
+      <div class="err" id="a-err">${esc(msg)}</div>
+      <button class="btn primary" type="submit">${mode === 'in' ? 'Sign in' : 'Create account'}</button>
+    </form>
+    <button class="btn ghost" id="a-sw">${mode === 'in' ? 'First time here? Create your account' : 'I already have an account'}</button>
+    <button class="btn ghost small" id="a-reset">Use a different database</button>`);
+  const wire = () => {
+    $('#a-sw').onclick = () => { mode = mode === 'in' ? 'up' : 'in'; draw(); wire(); };
+    $('#a-reset').onclick = () => { lsDel('compass-config'); location.reload(); };
+    $('#auth').onsubmit = async e => {
+      e.preventDefault();
+      const email = $('#a-e').value.trim(), password = $('#a-p').value, err = $('#a-err');
+      err.textContent = mode === 'in' ? 'Signing in…' : 'Creating account…';
+      const { data, error } = mode === 'in' ? await sb.auth.signInWithPassword({ email, password }) : await sb.auth.signUp({ email, password });
+      if (error) { err.textContent = error.message === 'Invalid login credentials' ? 'Email or password is not right.' : error.message; return; }
+      if (mode === 'up' && !data.session) { err.textContent = 'Account created. Confirm the link in your email, then sign in here.'; mode = 'in'; return; }
+      start(data.session);
+    };
+  };
+  draw(); wire();
+}
+function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.appendChild(s); }); }
+
+async function start(session) {
+  if (session) { B = Remote; UI.user = session.user.email; } else B = Local;
+  gate('<p class="muted" style="margin:0">Loading your data…</p>');
+  try { const d = await B.load(); TABLES.forEach(t => S[t] = d[t] || []); prune(); }
+  catch (e) { gate(`<h1>Could not load your data</h1><p class="err">${esc(e.message)}</p><p class="muted small">If this is a new database, run supabase-setup.sql first (see SETUP.md).</p><button class="btn" onclick="location.reload()">Try again</button>`); return; }
+  B.subscribe(); render();
+}
+async function boot() {
+  const th = lsGet('compass-theme'); if (th) document.documentElement.dataset.theme = th;
+  if (lsGet('compass-mode') === 'demo') return start(null);
+  const cfg = getConfig();
+  if (!cfg.url || !cfg.key) return showSetup();
+  try {
+    if (!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+    sb = window.supabase.createClient(cfg.url, cfg.key, { auth: { persistSession: true, autoRefreshToken: true } });
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) start(session); else showLogin();
+  } catch (e) { gate(`<h1>Can't reach the database</h1><p class="err">${esc(e.message)}</p><p class="muted small">Check your internet connection. On a company network, the database address may be blocked.</p><button class="btn" onclick="location.reload()">Try again</button><button class="btn ghost" onclick="localStorage.removeItem('compass-config');location.reload()">Use a different database</button>`); }
+}
+boot();
+</script>
+</body>
+</html>
