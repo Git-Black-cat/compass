@@ -165,7 +165,29 @@ textarea.input{min-height:84px;resize:vertical}
 .due.over{background:var(--danger-soft);color:var(--danger)}
 .due.today{background:var(--warn-soft);color:var(--warn)}
 .prio{width:8px;height:8px;border-radius:50%;flex:none}
-.prio.High{background:var(--danger)} .prio.Medium{background:var(--warn)} .prio.Low{background:var(--line)}
+.prio.p4{background:var(--danger)} .prio.p3{background:var(--warn)}
+.flag{border:0;background:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:var(--line);padding:0}
+.flag:hover{background:var(--surface-2);color:var(--muted)}
+.flag.on{color:var(--danger)}
+.flag.on .ico{fill:currentColor}
+.score{font-size:12.5px;font-weight:700;padding:2px 8px;border-radius:var(--r-sm);background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.recur{display:inline-flex;color:var(--muted)} .recur .ico{width:14px;height:14px}
+.shop{display:inline-flex;align-items:center;gap:4px} .shop .ico{width:13px;height:13px}
+.mlink{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;color:var(--accent)} .mlink:hover{background:var(--surface-2)}
+.togglechip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);font-weight:600;font-size:13.5px;color:var(--ink-2)}
+.togglechip[aria-pressed="true"]{border-color:var(--danger);color:var(--danger);background:var(--danger-soft)}
+.togglechip[aria-pressed="true"] .ico{fill:currentColor}
+.togglechip .ico{width:16px;height:16px}
+.checkrow{display:flex;gap:18px;flex-wrap:wrap}
+.checkrow label{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:var(--ink-2);cursor:pointer}
+.checkrow input{width:18px;height:18px;accent-color:var(--accent)}
+.calc{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.calc b{color:var(--ink);font-weight:700}
+.icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:4px;max-height:132px;overflow:auto;padding:2px}
+.icons button{border:1px solid transparent;background:var(--surface-2);border-radius:8px;height:38px;font-size:19px;padding:0}
+.icons button:hover{border-color:var(--line)}
+.icons button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.rolesec-h .emo{border:0;cursor:pointer;padding:0}
 .status-tag{font-size:12px;padding:1px 7px;border-radius:var(--r-sm);font-weight:600}
 .st-in-progress{background:var(--accent-soft);color:var(--accent)}
 .st-waiting{background:var(--warn-soft);color:var(--warn)}
@@ -209,6 +231,7 @@ textarea.input{min-height:84px;resize:vertical}
 
 /* Matrix */
 .matrix{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.axis{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin:0 2px 8px}
 .quad{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-height:220px}
 .quad h3{font-size:17px}
 .quad p{margin:2px 0 10px;font-size:13px;color:var(--muted)}
@@ -338,13 +361,21 @@ const TABLES = ['roles','projects','tasks','materials'];
 const SCHEMA = {
   roles:     ['id','name','description','color','icon','sort_order','created_at','updated_at'],
   projects:  ['id','role_id','name','description','status','start_date','due_date','created_at','updated_at'],
-  tasks:     ['id','project_id','title','description','status','priority','due_date','completed_at','created_at','updated_at'],
-  materials: ['id','project_id','name','type','url','notes','created_at','updated_at']
+  tasks:     ['id','project_id','title','description','status','priority','urgency','effort','due_date','recurring','flagged','completed_at','created_at','updated_at'],
+  materials: ['id','project_id','name','type','shop_type','url','notes','status','due_date','recurring','flagged','completed_at','created_at','updated_at']
 };
+// Calculated by the database; exported to CSV but never written back
+const COMPUTED = { tasks: ['priority_label','urgency_label','effort_label','priority_score','wsjf'] };
 const TASK_STATUS = ['To do','In progress','Waiting','Done'];
-const PRIORITY = ['High','Medium','Low'];
+// Level lists: index + 1 is the number stored in the database
+const PRIORITY = ['Very low','Low','High','Very high'];
+const URGENCY = ['Not urgent at all','Not so urgent','Urgent','Very urgent'];
+const EFFORT = ['Less than 10 minutes','Less than one hour','Less than one day','Less than one week','More than one week','More than one month'];
+const MATERIAL_STATUS = ['To do','Done'];
+const SHOP_TYPES = ['Supermarket','DIY store','Clothing store','Pharmacy','Bakery','Butcher','Electronics store','Garden centre','Bookshop','Furniture store','Sports store','Online shop','Other'];
+const ROLE_ICONS = ['💼','📊','🧭','🏢','💡','📞','🏡','👨‍👧','👨‍👧‍👦','👪','❤️','🤝','🎉','🍻','⚽','🚴','🏃','🧘','🌱','📚','🎓','✈️','🚗','🛠️','🍳','🎸','📷','🐶','💰','🏥','⛪','🎯'];
 const PROJECT_STATUS = ['Active','On hold','Idea','Done'];
-const MATERIAL_TYPE = ['Link','Document','Note','Contact','Other'];
+const MATERIAL_TYPE = ['Link','Document','Note','Contact','Product','Other'];
 const COLORS = ['#3D5AFE','#0F8B8D','#E07A2E','#C2407A','#7B5BD6','#2F9E44','#D4A015','#3B8BC2','#8D6E63','#5C6B7F'];
 const DATE_FIELDS = ['start_date','due_date'];
 
@@ -382,7 +413,11 @@ const I = {
   contact:'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0', other:'M12 3l8 4.5v9L12 21l-8-4.5v-9z',
   down:'M12 4v12M6 10l6 6 6-6M4 20h16', up:'M12 20V8M6 14l6-6 6 6M4 4h16', out:'M15 4h4v16h-4M10 17l5-5-5-5M15 12H4',
   sun:'M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10z',
-  folder:'M3 6h6l2 2h10v11H3z'
+  folder:'M3 6h6l2 2h10v11H3z',
+  flag:'M5 21V4M5 4h12l-2 4 2 4H5',
+  repeat:'M4 11V9a4 4 0 0 1 4-4h11M16 2l3 3-3 3M20 13v2a4 4 0 0 1-4 4H5M8 22l-3-3 3-3',
+  bag:'M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2',
+  box:'M3 7l9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10'
 };
 const ico = (n, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true"><path d="${I[n]}"/></svg>`;
 
@@ -391,7 +426,8 @@ const S = { roles: [], projects: [], tasks: [], materials: [] };
 const UI = {
   view: lsGet('compass-view') || 'dashboard',
   lens: lsGet('compass-lens') || '',
-  q: '', status: 'open', priority: '', groupBy: 'role',
+  q: '', status: 'open', priority: '', urgency: '', flagged: lsGet('compass-flagged') === '1', groupBy: 'role',
+  mq: '', mstatus: 'open', mshop: '', mtype: '', mgroup: 'role',
   calMonth: TODAY().slice(0,7),
   sep: lsGet('compass-sep') || ';',
   drawer: null, user: null, online: true
@@ -405,8 +441,14 @@ const taskRole = t => { const p = projOf(t.project_id); return p ? roleOf(p.role
 const colorOf = role => role?.color || '#5C6B7F';
 const sortedRoles = () => [...S.roles].sort((a,b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name));
 const isOpen = t => t.status !== 'Done';
-const prioRank = p => ({High:0, Medium:1, Low:2}[p] ?? 1);
-const taskSort = (a, b) => (a.status === 'Done') - (b.status === 'Done') || (a.due_date || '9999').localeCompare(b.due_date || '9999') || prioRank(a.priority) - prioRank(b.priority) || a.title.localeCompare(b.title);
+const lvl = (v, max, def = 2) => { const n = parseInt(v, 10); return n >= 1 && n <= max ? n : def; };
+const scoreOf = t => lvl(t.priority, 4) * lvl(t.urgency, 4);                       // Task priority score
+const wsjfOf = t => Math.round(scoreOf(t) / lvl(t.effort, 6) * 100) / 100;          // (Priority x Urgency) / Effort
+const fmtNum = n => Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/0$/, '');
+const taskSort = (a, b) => (a.status === 'Done') - (b.status === 'Done') || (a.due_date || '9999').localeCompare(b.due_date || '9999') || scoreOf(b) - scoreOf(a) || a.title.localeCompare(b.title);
+const scoreSort = (a, b) => scoreOf(b) - scoreOf(a) || (a.due_date || '9999').localeCompare(b.due_date || '9999') || a.title.localeCompare(b.title);
+const matSort = (a, b) => (a.status === 'Done') - (b.status === 'Done') || (a.due_date || '9999').localeCompare(b.due_date || '9999') || a.name.localeCompare(b.name);
+const toBool = v => v === true || /^(true|yes|ja|y|j|1|x|waar)$/i.test(String(v ?? '').trim());
 
 function lensTasks() { return UI.lens ? S.tasks.filter(t => projOf(t.project_id)?.role_id === UI.lens) : S.tasks; }
 function lensProjects() { return UI.lens ? S.projects.filter(p => p.role_id === UI.lens) : S.projects; }
@@ -415,7 +457,9 @@ function filteredTasks() {
   return lensTasks().filter(t => {
     if (UI.status === 'open' && !isOpen(t)) return false;
     if (UI.status && UI.status !== 'open' && UI.status !== 'all' && t.status !== UI.status) return false;
-    if (UI.priority && t.priority !== UI.priority) return false;
+    if (UI.priority && lvl(t.priority, 4) !== +UI.priority) return false;
+    if (UI.urgency && lvl(t.urgency, 4) !== +UI.urgency) return false;
+    if (UI.flagged && !t.flagged) return false;
     if (q) { const p = projOf(t.project_id); const hay = [t.title, t.description, p?.name, roleOf(p?.role_id)?.name].join(' ').toLowerCase(); if (!hay.includes(q)) return false; }
     return true;
   }).sort(taskSort);
@@ -427,6 +471,37 @@ function prune() {
   S.tasks = S.tasks.filter(t => p.has(t.project_id));
   S.materials = S.materials.filter(m => p.has(m.project_id));
   if (UI.lens && !r.has(UI.lens)) UI.lens = '';
+  S.tasks.forEach(normTask); S.materials.forEach(normMaterial);
+}
+// Bring rows from older versions (text priority, missing fields) to the current shape
+const OLD_PRIORITY = { 'very high': 4, high: 3, medium: 2, low: 2, 'very low': 1 };
+function levelFrom(v, list, def = 2) {
+  if (v === null || v === undefined || v === '') return def;
+  const n = parseInt(v, 10); if (n >= 1 && n <= list.length) return n;
+  const s = String(v).trim().toLowerCase();
+  const i = list.findIndex(x => x.toLowerCase() === s); if (i >= 0) return i + 1;
+  return list === PRIORITY && OLD_PRIORITY[s] ? OLD_PRIORITY[s] : def;
+}
+function normTask(t) {
+  t.priority = levelFrom(t.priority, PRIORITY); t.urgency = levelFrom(t.urgency, URGENCY); t.effort = levelFrom(t.effort, EFFORT);
+  t.recurring = toBool(t.recurring); t.flagged = toBool(t.flagged);
+}
+function normMaterial(m) {
+  if (!MATERIAL_STATUS.includes(m.status)) m.status = 'To do';
+  m.recurring = toBool(m.recurring); m.flagged = toBool(m.flagged);
+}
+function lensMaterials() { return UI.lens ? S.materials.filter(m => projOf(m.project_id)?.role_id === UI.lens) : S.materials; }
+function filteredMaterials() {
+  const q = UI.mq.trim().toLowerCase();
+  return lensMaterials().filter(m => {
+    if (UI.mstatus === 'open' && m.status === 'Done') return false;
+    if (UI.mstatus === 'Done' && m.status !== 'Done') return false;
+    if (UI.mshop && (m.shop_type || '') !== UI.mshop) return false;
+    if (UI.mtype && m.type !== UI.mtype) return false;
+    if (UI.flagged && !m.flagged) return false;
+    if (q) { const p = projOf(m.project_id); const hay = [m.name, m.notes, m.url, m.shop_type, p?.name, roleOf(p?.role_id)?.name].join(' ').toLowerCase(); if (!hay.includes(q)) return false; }
+    return true;
+  }).sort(matSort);
 }
 
 /* ---------- Backends ---------- */
@@ -499,8 +574,13 @@ async function saveRow(table, row) {
   if (i >= 0) S[table][i] = { ...S[table][i], ...row }; else S[table].push(row);
   render();
   try { await B.upsert(table, [S[table].find(r => r.id === row.id)]); }
-  catch (e) { toast('Not saved: ' + e.message, 'error'); reload(); }
+  catch (e) { toast('Not saved: ' + friendlyError(e), 'error'); reload(); }
   return row;
+}
+function friendlyError(e) {
+  const m = e?.message || String(e);
+  return /schema cache|column .* does not exist|invalid input syntax for type smallint/i.test(m)
+    ? 'the database still needs the version 2 update. Run supabase-update-v2.sql in Supabase (see SETUP.md).' : m;
 }
 async function deleteRow(table, id) {
   S[table] = S[table].filter(r => r.id !== id);
@@ -508,10 +588,27 @@ async function deleteRow(table, id) {
   try { await B.remove(table, [id]); if (B === Local) Local.persist(); }
   catch (e) { toast('Not deleted: ' + e.message, 'error'); reload(); }
 }
-function setTaskStatus(t, status) {
-  const patch = { id: t.id, status };
-  patch.completed_at = status === 'Done' ? (t.completed_at || nowISO()) : null;
-  return saveRow('tasks', patch);
+async function setStatus(table, item, status) {
+  const wasDone = item.status === 'Done';
+  const patch = { id: item.id, status };
+  patch.completed_at = status === 'Done' ? (item.completed_at || nowISO()) : null;
+  await saveRow(table, patch);
+  if (status === 'Done' && !wasDone && item.recurring) askRecurringCopy(table, S[table].find(x => x.id === item.id) || item);
+}
+const setTaskStatus = (t, status) => setStatus('tasks', t, status);
+// Recurring: when closed, offer to create a copy in "To do"
+function askRecurringCopy(table, item) {
+  const label = table === 'tasks' ? 'task' : 'material';
+  const name = item.title || item.name;
+  openModal(`Repeat this ${label}?`, `
+    <p style="margin:0">“${esc(name)}” is recurring. Do you want a new copy in <b>To do</b>?</p>
+    <div class="field"><label for="f-rdue">Due date for the new copy</label><input class="input" type="date" id="f-rdue" name="due_date" value="${esc((item.due_date || '').slice(0,10))}"></div>`,
+    { saveLabel: 'Yes, create a copy', cancelLabel: 'No',
+      onSave: d => {
+        const copy = { ...item }; ['id','created_at','updated_at','completed_at', ...(COMPUTED[table] || [])].forEach(k => delete copy[k]);
+        copy.status = 'To do'; copy.completed_at = null; copy.due_date = d.due_date || null;
+        saveRow(table, copy).then(() => toast(`New ${label} created`));
+      } });
 }
 async function reload(silent) {
   try { const d = await B.load(); TABLES.forEach(t => S[t] = d[t] || []); prune(); render(); }
@@ -537,16 +634,31 @@ function dueBadge(t) {
   if (d < 7) return `<span class="due">${parseISO(t.due_date).toLocaleDateString('en-GB',{weekday:'short'})}</span>`;
   return `<span class="due">${fmtDate(t.due_date)}</span>`;
 }
-function taskRow(t, { showRole = true, showProject = true } = {}) {
+function taskRow(t, { showRole = true, showProject = true, showScore = false } = {}) {
   const p = projOf(t.project_id), r = p ? roleOf(p.role_id) : null, done = t.status === 'Done';
   const st = (t.status === 'In progress' || t.status === 'Waiting') ? `<span class="status-tag st-${slug(t.status)}">${esc(t.status)}</span>` : '';
   return `<div class="trow ${done ? 'isdone' : ''}">
     <button class="check ${done ? 'done' : ''}" style="--c:${colorOf(r)}" data-action="toggle-task" data-id="${t.id}" aria-label="${done ? 'Mark as not done' : 'Mark as done'}: ${esc(t.title)}">${ico('check')}</button>
     <button class="tmain" data-action="edit-task" data-id="${t.id}">
       <span class="ttitle">${esc(t.title)}</span>
-      <span class="tmeta">${showRole && r ? chip(r, r.name) : ''}${showProject && p ? `<span>${esc(p.name)}</span>` : ''}${st}</span>
+      <span class="tmeta">${showRole && r ? chip(r, r.name) : ''}${showProject && p ? `<span>${esc(p.name)}</span>` : ''}${st}${recurIcon(t)}</span>
     </button>
-    <span class="tright">${t.priority === 'High' ? `<span class="prio High" title="High priority"></span>` : ''}${dueBadge(t)}</span>
+    <span class="tright">${showScore ? `<span class="score" title="WSJF: (priority x urgency) / effort">WSJF ${fmtNum(wsjfOf(t))}</span>` : prioDot(t)}${dueBadge(t)}${flagBtn('tasks', t)}</span>
+  </div>`;
+}
+const prioDot = t => t.priority >= 3 ? `<span class="prio p${t.priority}" title="${PRIORITY[t.priority - 1]} priority, ${URGENCY[lvl(t.urgency, 4) - 1].toLowerCase()}"></span>` : '';
+const flagBtn = (table, x) => `<button class="flag ${x.flagged ? 'on' : ''}" data-action="flag" data-table="${table}" data-id="${x.id}" aria-pressed="${!!x.flagged}" aria-label="${x.flagged ? 'Remove flag' : 'Flag'}">${ico('flag')}</button>`;
+const recurIcon = x => x.recurring ? `<span class="recur" title="Recurring">${ico('repeat')}</span>` : '';
+function materialRow(m, { showRole = true, showProject = true } = {}) {
+  const p = projOf(m.project_id), r = p ? roleOf(p.role_id) : null, done = m.status === 'Done';
+  const link = m.url && /^https?:\/\//i.test(m.url) ? `<a class="mlink" href="${esc(m.url)}" target="_blank" rel="noopener" aria-label="Open link for ${esc(m.name)}">${ico('link')}</a>` : '';
+  return `<div class="trow ${done ? 'isdone' : ''}">
+    <button class="check ${done ? 'done' : ''}" style="--c:${colorOf(r)}" data-action="toggle-material" data-id="${m.id}" aria-label="${done ? 'Mark as to do' : 'Mark as done'}: ${esc(m.name)}">${ico('check')}</button>
+    <button class="tmain" data-action="edit-material" data-id="${m.id}">
+      <span class="ttitle">${esc(m.name)}</span>
+      <span class="tmeta">${showRole && r ? chip(r, r.name) : ''}${showProject && p ? `<span>${esc(p.name)}</span>` : ''}${m.shop_type ? `<span class="shop">${ico('bag')}${esc(m.shop_type)}</span>` : ''}<span>${esc(m.type || '')}</span>${recurIcon(m)}</span>
+    </button>
+    <span class="tright">${link}${dueBadge(m)}${flagBtn('materials', m)}</span>
   </div>`;
 }
 const emptyState = (title, text, action = '') => `<div class="empty"><b>${esc(title)}</b>${esc(text)}${action ? `<div style="margin-top:14px">${action}</div>` : ''}</div>`;
@@ -562,11 +674,12 @@ function projectOptions(selected) {
   }).join('');
 }
 const opts = (list, sel) => list.map(v => `<option ${v === sel ? 'selected' : ''}>${esc(v)}</option>`).join('');
+const levelOpts = (list, sel) => list.map((v, i) => `<option value="${i + 1}" ${i + 1 === +sel ? 'selected' : ''}>${esc(v)} (${i + 1})</option>`).join('');
 
 /* ---------- Layout ---------- */
 const VIEWS = [
   ['dashboard','Today','home'], ['tasks','Tasks','list'], ['board','Board','board'],
-  ['calendar','Calendar','cal'], ['matrix','Priorities','matrix'], ['roles','Roles & projects','roles'], ['data','Import & export','data']
+  ['calendar','Calendar','cal'], ['matrix','Priorities','matrix'], ['materials','Materials','box'], ['roles','Roles & projects','roles'], ['data','Import & export','data']
 ];
 function render() {
   const root = $('#root');
@@ -577,7 +690,7 @@ function render() {
   root.innerHTML = `<div class="app">
     <aside class="side">
       <div class="brand"><div class="brand-mark"><svg width="16" height="20" viewBox="0 0 16 20"><path d="M8 0l4 10-4 10-4-10z" fill="#57C4B8"/></svg></div><span class="brand-name">Compass</span></div>
-      <nav class="nav" aria-label="Views">${VIEWS.map(([k,l,i]) => `<button data-action="nav" data-view="${k}" aria-current="${UI.view === k}">${ico(i)}${l}${k === 'tasks' ? `<span class="count">${lensTasks().filter(isOpen).length}</span>` : ''}</button>`).join('')}</nav>
+      <nav class="nav" aria-label="Views">${VIEWS.map(([k,l,i]) => `<button data-action="nav" data-view="${k}" aria-current="${UI.view === k}">${ico(i)}${l}${k === 'tasks' ? `<span class="count">${lensTasks().filter(isOpen).length}</span>` : k === 'materials' ? `<span class="count">${lensMaterials().filter(m => m.status !== 'Done').length}</span>` : ''}</button>`).join('')}</nav>
       <div>
         <h4>Look through a role</h4>
         <div class="lens">
@@ -601,7 +714,7 @@ function render() {
     </main>
   </div>
   <button class="fab" data-action="new-task" aria-label="New task">${ico('plus')}</button>
-  <nav class="mobilebar" aria-label="Views">${VIEWS.slice(0,6).map(([k,l,i]) => `<button data-action="nav" data-view="${k}" aria-current="${UI.view === k}">${ico(i)}<span>${l.split(' ')[0]}</span></button>`).join('')}</nav>
+  <nav class="mobilebar" aria-label="Views">${VIEWS.slice(0,7).map(([k,l,i]) => `<button data-action="nav" data-view="${k}" aria-current="${UI.view === k}">${ico(i)}<span>${l.split(' ')[0]}</span></button>`).join('')}</nav>
   ${UI.drawer ? drawerHTML(UI.drawer) : ''}`;
   window.scrollTo(0, scrollY);
   if (UI.view === 'board') wireBoard();
@@ -616,6 +729,7 @@ function viewHTML(lr) {
     case 'board': return boardView(lr);
     case 'calendar': return calendarView(lr);
     case 'matrix': return matrixView(lr);
+    case 'materials': return materialsView(lr);
     case 'roles': return rolesView(lr);
     case 'data': return dataView();
     default: return dashboardView(lr);
@@ -693,11 +807,14 @@ function dashboardView(lr) {
   </div>`;
 }
 
+const flagToggle = () => `<button class="togglechip" data-action="flag-filter" aria-pressed="${UI.flagged}">${ico('flag')}Flagged only</button>`;
 function filterBar(withStatus = true) {
   return `<div class="toolbar">
     <div class="search">${ico('search')}<input class="input" type="search" placeholder="Search tasks, projects…" value="${esc(UI.q)}" data-bind="q" aria-label="Search"></div>
     ${withStatus ? `<select class="input" data-bind="status" aria-label="Status"><option value="open" ${UI.status === 'open' ? 'selected' : ''}>Open tasks</option><option value="all" ${UI.status === 'all' ? 'selected' : ''}>All tasks</option>${TASK_STATUS.map(s => `<option ${UI.status === s ? 'selected' : ''}>${s}</option>`).join('')}</select>` : ''}
-    <select class="input" data-bind="priority" aria-label="Priority"><option value="">Any priority</option>${PRIORITY.map(p => `<option ${UI.priority === p ? 'selected' : ''}>${p}</option>`).join('')}</select>
+    <select class="input" data-bind="priority" aria-label="Priority"><option value="">Any priority</option>${levelOpts(PRIORITY, UI.priority)}</select>
+    <select class="input" data-bind="urgency" aria-label="Urgency"><option value="">Any urgency</option>${levelOpts(URGENCY, UI.urgency)}</select>
+    ${flagToggle()}
   </div>`;
 }
 function tasksView(lr) {
@@ -708,6 +825,14 @@ function tasksView(lr) {
     switch (UI.groupBy) {
       case 'project': return [p?.id, p?.name, r, (r?.name || '') + ' / ' + (p?.name || '')];
       case 'status': return [t.status, t.status, null, TASK_STATUS.indexOf(t.status)];
+      case 'wsjf': {
+        const w = wsjfOf(t);
+        if (w >= 8) return ['w8', 'WSJF 8 and higher', null, 0];
+        if (w >= 4) return ['w4', 'WSJF 4 to under 8', null, 1];
+        if (w >= 2) return ['w2', 'WSJF 2 to under 4', null, 2];
+        if (w >= 1) return ['w1', 'WSJF 1 to under 2', null, 3];
+        return ['w0', 'WSJF under 1', null, 4];
+      }
       case 'due': {
         if (!t.due_date) return ['none', 'No due date', null, 9];
         const d = diffDays(TODAY(), t.due_date);
@@ -719,12 +844,13 @@ function tasksView(lr) {
       default: return [r?.id, r?.name, r, (r?.sort_order ?? 0) + (r?.name || '')];
     }
   };
+  if (UI.groupBy === 'wsjf') list.sort((a, b) => (a.status === 'Done') - (b.status === 'Done') || wsjfOf(b) - wsjfOf(a) || scoreSort(a, b));
   list.forEach(t => { const [k, label, role, sort] = key(t); if (!groups.has(k)) groups.set(k, { label, role, sort, items: [] }); groups.get(k).items.push(t); });
   const gs = [...groups.values()].sort((a, b) => typeof a.sort === 'number' && typeof b.sort === 'number' ? a.sort - b.sort : String(a.sort).localeCompare(String(b.sort)));
   return `${header('Tasks', `${list.length} task${list.length === 1 ? '' : 's'} shown`, lr, `<button class="btn primary hide-m" data-action="new-task">${ico('plus')}New task</button>`)}
     ${filterBar()}
-    <div class="toolbar"><span class="muted small">Group by</span><div class="seg" role="group" aria-label="Group by">${[['role','Role'],['project','Project'],['status','Status'],['due','Due date']].map(([k,l]) => `<button data-action="group" data-id="${k}" aria-pressed="${UI.groupBy === k}">${l}</button>`).join('')}</div></div>
-    ${gs.length ? gs.map(g => `<section class="panel group"><div class="group-h">${g.role ? `<span class="tab" style="--c:${colorOf(g.role)}"></span>` : ''}<h3>${esc(g.label || 'Unknown')}</h3><span class="muted">${g.items.length}</span></div><div class="tlist">${g.items.map(t => taskRow(t, { showRole: UI.groupBy !== 'role' && UI.groupBy !== 'project', showProject: UI.groupBy !== 'project' })).join('')}</div></section>`).join('')
+    <div class="toolbar"><span class="muted small">Group by</span><div class="seg" role="group" aria-label="Group by">${[['role','Role'],['project','Project'],['status','Status'],['due','Due date'],['wsjf','WSJF']].map(([k,l]) => `<button data-action="group" data-id="${k}" aria-pressed="${UI.groupBy === k}">${l}</button>`).join('')}</div>${UI.groupBy === 'wsjf' ? `<span class="muted small">Weighted shortest job first: (priority x urgency) / effort. Highest first.</span>` : ''}</div>
+    ${gs.length ? gs.map(g => `<section class="panel group"><div class="group-h">${g.role ? `<span class="tab" style="--c:${colorOf(g.role)}"></span>` : ''}<h3>${esc(g.label || 'Unknown')}</h3><span class="muted">${g.items.length}</span></div><div class="tlist">${g.items.map(t => taskRow(t, { showRole: UI.groupBy !== 'role' && UI.groupBy !== 'project', showProject: UI.groupBy !== 'project', showScore: UI.groupBy === 'wsjf' })).join('')}</div></section>`).join('')
       : `<div class="panel">${emptyState('No tasks match', 'Try another filter or add a new task.', `<button class="btn primary" data-action="new-task">${ico('plus')}New task</button>`)}</div>`}`;
 }
 
@@ -732,13 +858,14 @@ function boardView(lr) {
   const saved = UI.status; if (UI.status === 'open') UI.status = 'all';
   const list = filteredTasks(); UI.status = saved;
   const recentDone = addDays(TODAY(), -14);
-  return `${header('Board', 'Drag cards between columns to change their status', lr, `<button class="btn primary hide-m" data-action="new-task">${ico('plus')}New task</button>`)}
+  return `${header('Board', 'Drag cards between columns to change their status. Cards are ranked by task priority score.', lr, `<button class="btn primary hide-m" data-action="new-task">${ico('plus')}New task</button>`)}
   ${filterBar(false)}
   <div class="board">${TASK_STATUS.map(s => {
     let items = list.filter(t => t.status === s);
-    if (s === 'Done') items = items.filter(t => !t.completed_at || t.completed_at.slice(0,10) >= recentDone).sort((a,b) => (b.completed_at || '').localeCompare(a.completed_at || ''));
+    if (s === 'Done') items = items.filter(t => !t.completed_at || t.completed_at.slice(0,10) >= recentDone);
+    items.sort(scoreSort);   // ranked by task priority score (priority x urgency)
     return `<div class="col" data-status="${s}"><div class="col-h"><h3>${s}</h3><span class="muted small">${items.length}${s === 'Done' ? ' in 14 days' : ''}</span></div>
-      ${items.map(t => { const p = projOf(t.project_id), r = p ? roleOf(p.role_id) : null; return `<button class="card" draggable="true" data-id="${t.id}" data-action="edit-task" style="--c:${colorOf(r)}"><b>${esc(t.title)}</b><span class="tmeta">${r ? chip(r, p.name) : ''}${t.priority === 'High' ? '<span class="prio High" title="High priority"></span>' : ''}${dueBadge(t)}</span></button>`; }).join('')}
+      ${items.map(t => { const p = projOf(t.project_id), r = p ? roleOf(p.role_id) : null; return `<button class="card" draggable="true" data-id="${t.id}" data-action="edit-task" style="--c:${colorOf(r)}"><b>${esc(t.title)}</b><span class="tmeta">${r ? chip(r, p.name) : ''}<span class="score" title="Task priority score: priority x urgency">${scoreOf(t)}</span>${recurIcon(t)}${dueBadge(t)}${t.flagged ? `<span class="flag on" style="width:auto;height:auto" title="Flagged">${ico('flag')}</span>` : ''}</span></button>`; }).join('')}
       <button class="btn ghost sm" data-action="new-task" data-status="${s}">${ico('plus')}Add</button></div>`;
   }).join('')}</div>`;
 }
@@ -783,17 +910,52 @@ function calendarView(lr) {
 }
 
 function matrixView(lr) {
-  const list = filteredTasks().filter(isOpen), soon = addDays(TODAY(), 3);
-  const urgent = t => t.due_date && t.due_date <= soon, important = t => t.priority === 'High';
+  const list = filteredTasks().filter(isOpen).sort(scoreSort);
+  const important = t => t.priority >= 3, urgent = t => t.urgency >= 3;
   const Q = [
-    ['q1', 'Do first', 'High priority and due within 3 days', list.filter(t => important(t) && urgent(t))],
-    ['q2', 'Plan', 'High priority, not yet pressing', list.filter(t => important(t) && !urgent(t))],
-    ['q3', 'Fit in or hand off', 'Due soon, lower priority', list.filter(t => !important(t) && urgent(t))],
-    ['q4', 'Later', 'Lower priority, no time pressure', list.filter(t => !important(t) && !urgent(t))]
+    ['q1', 'Do first', 'High or very high priority, and urgent', list.filter(t => important(t) && urgent(t))],
+    ['q2', 'Plan', 'High or very high priority, not urgent yet', list.filter(t => important(t) && !urgent(t))],
+    ['q3', 'Fit in or hand off', 'Urgent, but low or very low priority', list.filter(t => !important(t) && urgent(t))],
+    ['q4', 'Later', 'Low priority and not urgent', list.filter(t => !important(t) && !urgent(t))]
   ];
-  return `${header('Priorities', 'Open tasks sorted by importance (priority) and urgency (due date)', lr)}
+  return `${header('Priorities', 'Open tasks placed by priority and urgency, highest score first', lr)}
   ${filterBar(false)}
   <div class="matrix">${Q.map(([c, t, d, items]) => `<section class="quad ${c}"><div class="panel-head" style="margin:0"><h3>${t}</h3><span class="muted small">${items.length}</span></div><p>${d}</p><div class="tlist">${items.map(x => taskRow(x)).join('') || '<div class="muted small" style="padding:8px 0">Nothing here.</div>'}</div></section>`).join('')}</div>`;
+}
+
+function materialsView(lr) {
+  const list = filteredMaterials();
+  const shops = [...new Set([...SHOP_TYPES, ...S.materials.map(m => m.shop_type).filter(Boolean)])].sort((a, b) => a.localeCompare(b));
+  const groups = new Map();
+  const key = m => {
+    const p = projOf(m.project_id), r = p ? roleOf(p.role_id) : null;
+    switch (UI.mgroup) {
+      case 'project': return [p?.id, p?.name, r, (r?.name || '') + ' / ' + (p?.name || '')];
+      case 'shop': return [m.shop_type || '', m.shop_type || 'No shop type', null, m.shop_type ? m.shop_type.toLowerCase() : '~'];
+      case 'type': return [m.type || '', m.type || 'No type', null, MATERIAL_TYPE.indexOf(m.type) + 1 || 99];
+      case 'due': {
+        if (m.status === 'Done') return ['done', 'Done', null, 10];
+        if (!m.due_date) return ['none', 'No due date', null, 9];
+        const d = diffDays(TODAY(), m.due_date);
+        if (d < 0) return ['over', 'Overdue', null, 0]; if (d === 0) return ['today', 'Today', null, 1];
+        if (d < 7) return ['week', 'Next 7 days', null, 2]; return ['later', 'Later', null, 3];
+      }
+      default: return [r?.id, r?.name, r, (r?.sort_order ?? 0) + (r?.name || '')];
+    }
+  };
+  list.forEach(m => { const [k, label, role, sort] = key(m); if (!groups.has(k)) groups.set(k, { label, role, sort, items: [] }); groups.get(k).items.push(m); });
+  const gs = [...groups.values()].sort((a, b) => typeof a.sort === 'number' && typeof b.sort === 'number' ? a.sort - b.sort : String(a.sort).localeCompare(String(b.sort)));
+  return `${header('Materials', `${list.length} material${list.length === 1 ? '' : 's'} shown`, lr, `<button class="btn primary hide-m" data-action="new-material">${ico('plus')}New material</button>`)}
+    <div class="toolbar">
+      <div class="search">${ico('search')}<input class="input" type="search" placeholder="Search materials, shops…" value="${esc(UI.mq)}" data-bind="mq" aria-label="Search materials"></div>
+      <select class="input" data-bind="mstatus" aria-label="Status"><option value="open" ${UI.mstatus === 'open' ? 'selected' : ''}>To do</option><option value="Done" ${UI.mstatus === 'Done' ? 'selected' : ''}>Done</option><option value="all" ${UI.mstatus === 'all' ? 'selected' : ''}>All materials</option></select>
+      <select class="input" data-bind="mshop" aria-label="Type of shop"><option value="">Any shop</option>${shops.map(x => `<option ${UI.mshop === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select>
+      <select class="input" data-bind="mtype" aria-label="Type"><option value="">Any type</option>${opts(MATERIAL_TYPE, UI.mtype)}</select>
+      ${flagToggle()}
+    </div>
+    <div class="toolbar"><span class="muted small">Group by</span><div class="seg" role="group" aria-label="Group by">${[['role','Role'],['project','Project'],['shop','Shop'],['type','Type'],['due','Due date']].map(([k,l]) => `<button data-action="mgroup" data-id="${k}" aria-pressed="${UI.mgroup === k}">${l}</button>`).join('')}</div></div>
+    ${gs.length ? gs.map(g => `<section class="panel group"><div class="group-h">${g.role ? `<span class="tab" style="--c:${colorOf(g.role)}"></span>` : ''}<h3>${esc(g.label || 'Unknown')}</h3><span class="muted">${g.items.length}</span></div><div class="tlist">${g.items.map(m => materialRow(m, { showRole: UI.mgroup !== 'role' && UI.mgroup !== 'project', showProject: UI.mgroup !== 'project' })).join('')}</div></section>`).join('')
+      : `<div class="panel">${emptyState(S.materials.length ? 'No materials match' : 'No materials yet', S.materials.length ? 'Try another filter or add a new material.' : 'Keep links, documents, contacts and things to buy here, linked to a project.', `<button class="btn primary" data-action="new-material">${ico('plus')}New material</button>`)}</div>`}`;
 }
 
 function rolesView(lr) {
@@ -802,7 +964,7 @@ function rolesView(lr) {
   ${roles.length ? roles.map(r => {
     const ps = S.projects.filter(p => p.role_id === r.id).sort((a, b) => PROJECT_STATUS.indexOf(a.status) - PROJECT_STATUS.indexOf(b.status) || a.name.localeCompare(b.name));
     return `<section class="rolesec" style="--c:${colorOf(r)}">
-      <div class="rolesec-h"><div class="emo">${esc(r.icon || '•')}</div><div><h2>${esc(r.name)}</h2>${r.description ? `<div class="desc">${esc(r.description)}</div>` : ''}</div>
+      <div class="rolesec-h"><button class="emo" data-action="edit-role" data-id="${r.id}" aria-label="Change icon of ${esc(r.name)}" title="Change icon">${esc(r.icon || '•')}</button><div><h2>${esc(r.name)}</h2>${r.description ? `<div class="desc">${esc(r.description)}</div>` : ''}</div>
         <div class="acts"><button class="iconbtn" data-action="edit-role" data-id="${r.id}" aria-label="Edit role ${esc(r.name)}">${ico('edit')}</button></div></div>
       <div class="projs">${ps.map(p => {
         const ts = S.tasks.filter(t => t.project_id === p.id), done = ts.filter(t => !isOpen(t)).length, pct = ts.length ? Math.round(done / ts.length * 100) : 0;
@@ -817,9 +979,8 @@ function rolesView(lr) {
 
 function drawerHTML(projectId) {
   const p = projOf(projectId); if (!p) { UI.drawer = null; return ''; }
-  const r = roleOf(p.role_id), ts = S.tasks.filter(t => t.project_id === p.id).sort(taskSort), mats = S.materials.filter(m => m.project_id === p.id).sort((a, b) => a.name.localeCompare(b.name));
+  const r = roleOf(p.role_id), ts = S.tasks.filter(t => t.project_id === p.id).sort(taskSort), mats = S.materials.filter(m => m.project_id === p.id).sort(matSort);
   const done = ts.filter(t => !isOpen(t)).length;
-  const mIcon = { Link: 'link', Document: 'doc', Note: 'note', Contact: 'contact' };
   return `<div class="scrim" data-action="close-drawer"><aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(p.name)}" style="--c:${colorOf(r)}" data-stop>
     <div class="drawer-h">
       <div class="crumb">${r ? chip(r, r.name) : ''}<span class="pstatus ps-${slug(p.status || 'Active')}">${esc(p.status || 'Active')}</span><span style="margin-left:auto;display:flex;gap:2px"><button class="iconbtn" data-action="edit-project" data-id="${p.id}" aria-label="Edit project">${ico('edit')}</button><button class="iconbtn" data-action="close-drawer" aria-label="Close">${ico('x')}</button></span></div>
@@ -831,8 +992,8 @@ function drawerHTML(projectId) {
       <section class="panel"><div class="panel-head"><h2>Tasks</h2><button class="btn sm" data-action="new-task" data-project="${p.id}">${ico('plus')}Task</button></div>
         ${ts.length ? `<div class="tlist">${ts.map(t => taskRow(t, { showRole: false, showProject: false })).join('')}</div>` : emptyState('No tasks yet', 'Break this project into the next concrete steps.')}</section>
       <section class="panel"><div class="panel-head"><h2>Materials</h2><button class="btn sm" data-action="new-material" data-project="${p.id}">${ico('plus')}Material</button></div>
-        ${mats.length ? `<div style="display:flex;flex-direction:column;gap:8px">${mats.map(m => `<div class="mat"><span class="mi">${ico(mIcon[m.type] || 'other')}</span><div class="body"><b>${esc(m.name)}</b>${m.url ? (/^https?:\/\//i.test(m.url) ? `<a href="${esc(m.url)}" target="_blank" rel="noopener">${esc(m.url)}</a>` : `<span class="small">${esc(m.url)}</span>`) : ''}${m.notes ? `<div class="small muted" style="white-space:pre-wrap">${esc(m.notes)}</div>` : ''}</div><button class="iconbtn" data-action="edit-material" data-id="${m.id}" aria-label="Edit ${esc(m.name)}">${ico('edit')}</button></div>`).join('')}</div>`
-          : emptyState('No materials yet', 'Keep links, documents, notes and contacts for this project here.')}</section>
+        ${mats.length ? `<div class="tlist">${mats.map(m => materialRow(m, { showRole: false, showProject: false })).join('')}</div>`
+          : emptyState('No materials yet', 'Keep links, documents, contacts and things to buy for this project here.')}</section>
     </div></aside></div>`;
 }
 
@@ -851,19 +1012,19 @@ function dataView() {
       <h2>Import</h2>
       <div class="drop" id="drop"><p style="margin:0 0 10px">Drop .csv or .txt files here, or</p><label class="btn">${ico('up')}Choose files<input type="file" accept=".csv,.txt,text/csv,text/plain" multiple hidden id="file"></label></div>
       <div class="result" id="result"></div>
-      <p class="note" style="margin-top:14px">The table is recognised from the file name (for example <code>tasks.csv</code>). Rows with an existing <code>id</code> are updated; rows without one are added. Instead of IDs you can fill in <code>role_name</code> or <code>project_name</code>, and missing roles or projects are created. Separators (; , or tab) and encodings (UTF-8 or Windows/ANSI) are detected automatically. Dates can be <code>2026-10-31</code> or <code>31/10/2026</code>.</p>
+      <p class="note" style="margin-top:14px">The table is recognised from the file name (for example <code>tasks.csv</code>). Rows with an existing <code>id</code> are updated; rows without one are added. Instead of IDs you can fill in <code>role_name</code> or <code>project_name</code>, and missing roles or projects are created. Separators (; , or tab) and encodings (UTF-8 or Windows/ANSI) are detected automatically. Dates can be <code>2026-10-31</code> or <code>31/10/2026</code>. Priority, urgency and effort can be numbers (<code>1</code> to <code>4</code>, effort <code>1</code> to <code>6</code>) or their names; recurring and flagged accept yes/no, ja/nee, true/false or 1/0. Score and WSJF columns are calculated and ignored on import.</p>
     </section>
   </div>`;
 }
 
 /* ---------- Modals (forms) ---------- */
-function openModal(title, body, { onSave, onDelete, saveLabel = 'Save' } = {}) {
+function openModal(title, body, { onSave, onDelete, saveLabel = 'Save', cancelLabel = 'Cancel', onOpen } = {}) {
   closeModal();
   const wrap = document.createElement('div');
   wrap.className = 'scrim center'; wrap.id = 'modal';
   wrap.innerHTML = `<form class="modal" role="dialog" aria-modal="true" aria-labelledby="mt" novalidate><div class="modal-h"><h2 id="mt">${esc(title)}</h2><button type="button" class="iconbtn" data-close aria-label="Close">${ico('x')}</button></div>
     <div class="modal-b">${body}</div>
-    <div class="modal-f">${onDelete ? `<button type="button" class="btn ghost danger" data-del>${ico('trash')}Delete</button>` : ''}<span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button class="btn primary" type="submit">${esc(saveLabel)}</button></div></form>`;
+    <div class="modal-f">${onDelete ? `<button type="button" class="btn ghost danger" data-del>${ico('trash')}Delete</button>` : ''}<span class="spacer"></span><button type="button" class="btn" data-close>${esc(cancelLabel)}</button><button class="btn primary" type="submit">${esc(saveLabel)}</button></div></form>`;
   document.body.appendChild(wrap);
   const form = wrap.querySelector('form');
   wrap.addEventListener('mousedown', e => { if (e.target === wrap) closeModal(); });
@@ -874,8 +1035,10 @@ function openModal(title, body, { onSave, onDelete, saveLabel = 'Save' } = {}) {
     const req = [...form.querySelectorAll('[required]')].find(el => !el.value.trim());
     if (req) { req.focus(); req.style.outline = '2px solid var(--danger)'; return; }
     const data = Object.fromEntries(new FormData(form).entries());
+    form.querySelectorAll('input[type=checkbox][name]').forEach(c => data[c.name] = c.checked);
     closeModal(); onSave(data);
   };
+  if (onOpen) onOpen(form);
   setTimeout(() => form.querySelector('input,select,textarea')?.focus(), 30);
 }
 function closeModal() { $('#modal')?.remove(); }
@@ -883,15 +1046,32 @@ function closeModal() { $('#modal')?.remove(); }
 function taskForm(t = {}, defaults = {}) {
   if (!S.projects.length) { toast('Create a project first, then add tasks to it.'); UI.view = 'roles'; render(); return; }
   const pid = t.project_id || defaults.project || (UI.lens ? lensProjects()[0]?.id : null) || S.projects[0].id;
+  const wasDone = t.status === 'Done';
   openModal(t.id ? 'Edit task' : 'New task', `
     <div class="field"><label for="f-title">Title</label><input class="input" id="f-title" name="title" value="${esc(t.title)}" required></div>
-    <div class="field"><label for="f-proj">Project</label><select class="input" id="f-proj" name="project_id">${projectOptions(pid)}</select></div>
-    <div class="grid2"><div class="field"><label for="f-st">Status</label><select class="input" id="f-st" name="status">${opts(TASK_STATUS, t.status || defaults.status || 'To do')}</select></div>
-    <div class="field"><label for="f-pr">Priority</label><select class="input" id="f-pr" name="priority">${opts(PRIORITY, t.priority || 'Medium')}</select></div></div>
-    <div class="field"><label for="f-due">Due date</label><input class="input" type="date" id="f-due" name="due_date" value="${esc((t.due_date || defaults.date || '').slice(0,10))}"></div>
+    <div class="grid2"><div class="field"><label for="f-proj">Project</label><select class="input" id="f-proj" name="project_id">${projectOptions(pid)}</select></div>
+    <div class="field"><label for="f-st">Status</label><select class="input" id="f-st" name="status">${opts(TASK_STATUS, t.status || defaults.status || 'To do')}</select></div></div>
+    <div class="grid2"><div class="field"><label for="f-pr">Priority</label><select class="input" id="f-pr" name="priority">${levelOpts(PRIORITY, t.priority || 2)}</select></div>
+    <div class="field"><label for="f-ur">Urgency</label><select class="input" id="f-ur" name="urgency">${levelOpts(URGENCY, t.urgency || 2)}</select></div></div>
+    <div class="grid2"><div class="field"><label for="f-ef">Task effort</label><select class="input" id="f-ef" name="effort">${levelOpts(EFFORT, t.effort || 2)}</select></div>
+    <div class="field"><label for="f-due">Due date</label><input class="input" type="date" id="f-due" name="due_date" value="${esc((t.due_date || defaults.date || '').slice(0,10))}"></div></div>
+    <div class="calc" id="f-calc"></div>
+    <div class="checkrow"><label><input type="checkbox" name="flagged" ${t.flagged ? 'checked' : ''}>Flagged</label><label><input type="checkbox" name="recurring" ${t.recurring ? 'checked' : ''}>Recurring</label></div>
     <div class="field"><label for="f-desc">Notes</label><textarea class="input" id="f-desc" name="description">${esc(t.description)}</textarea></div>`,
     { saveLabel: t.id ? 'Save task' : 'Add task',
-      onSave: d => { const row = { ...d, id: t.id }; if (!t.id) delete row.id; row.completed_at = d.status === 'Done' ? (t.completed_at || nowISO()) : null; saveRow('tasks', row).then(() => toast(t.id ? 'Task saved' : 'Task added')); },
+      onOpen: form => {
+        const upd = () => { const x = { priority: form.priority.value, urgency: form.urgency.value, effort: form.effort.value };
+          $('#f-calc').innerHTML = `<span>Task priority score <b>${scoreOf(x)}</b></span><span>WSJF <b>${fmtNum(wsjfOf(x))}</b></span>`; };
+        ['priority','urgency','effort'].forEach(n => form[n].addEventListener('change', upd)); upd();
+      },
+      onSave: async d => {
+        const row = { ...d, priority: +d.priority, urgency: +d.urgency, effort: +d.effort };
+        if (t.id) row.id = t.id;
+        row.completed_at = d.status === 'Done' ? (t.completed_at || nowISO()) : null;
+        const saved = await saveRow('tasks', row);
+        toast(t.id ? 'Task saved' : 'Task added');
+        if (d.status === 'Done' && !wasDone && d.recurring) askRecurringCopy('tasks', S.tasks.find(x => x.id === saved.id));
+      },
       onDelete: t.id ? () => deleteRow('tasks', t.id) : null });
 }
 function projectForm(p = {}, defaults = {}) {
@@ -911,25 +1091,48 @@ function projectForm(p = {}, defaults = {}) {
 function roleForm(r = {}) {
   const color = r.color || COLORS[S.roles.length % COLORS.length];
   openModal(r.id ? 'Edit role' : 'New role', `
-    <div class="grid2" style="grid-template-columns:90px 1fr"><div class="field"><label for="f-i">Icon</label><input class="input" id="f-i" name="icon" value="${esc(r.icon || '')}" maxlength="4" placeholder="💼" style="text-align:center;font-size:18px"></div>
-    <div class="field"><label for="f-n">Name</label><input class="input" id="f-n" name="name" value="${esc(r.name)}" required placeholder="For example: Dad"></div></div>
+    <div class="field"><label for="f-n">Name</label><input class="input" id="f-n" name="name" value="${esc(r.name)}" required placeholder="For example: Dad"></div>
+    <div class="field"><label for="f-i">Icon</label>
+      <div style="display:flex;gap:8px"><input class="input" id="f-i" name="icon" value="${esc(r.icon || '')}" placeholder="Pick one below or type an emoji" style="font-size:18px"><button type="button" class="btn" id="f-iclear">Clear</button></div>
+      <div class="icons" role="group" aria-label="Choose an icon">${ROLE_ICONS.map(x => `<button type="button" data-icon="${x}" aria-pressed="${x === r.icon}" aria-label="Use ${x}">${x}</button>`).join('')}</div></div>
     <div class="field"><label>Colour</label><div class="swatches">${COLORS.map(c => `<label style="--c:${c}"><input type="radio" name="color" value="${c}" ${c === color ? 'checked' : ''}><span></span></label>`).join('')}</div></div>
     <div class="field"><label for="f-d">Description</label><textarea class="input" id="f-d" name="description" placeholder="What this role means to you">${esc(r.description)}</textarea></div>
     <div class="field"><label for="f-o">Order in the list</label><input class="input" type="number" id="f-o" name="sort_order" value="${esc(r.sort_order ?? S.roles.length + 1)}" style="width:120px"></div>`,
     { saveLabel: r.id ? 'Save role' : 'Create role',
-      onSave: d => { const row = { ...d, sort_order: parseInt(d.sort_order, 10) || 0 }; if (r.id) row.id = r.id; saveRow('roles', row).then(() => toast(r.id ? 'Role saved' : 'Role created')); },
+      onOpen: form => {
+        const inp = form.querySelector('#f-i');
+        const mark = () => form.querySelectorAll('[data-icon]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.icon === inp.value.trim())));
+        form.querySelectorAll('[data-icon]').forEach(b => b.onclick = () => { inp.value = b.dataset.icon; mark(); });
+        form.querySelector('#f-iclear').onclick = () => { inp.value = ''; mark(); inp.focus(); };
+        inp.addEventListener('input', mark);
+      },
+      onSave: d => { const row = { ...d, icon: (d.icon || '').trim(), sort_order: parseInt(d.sort_order, 10) || 0 }; if (r.id) row.id = r.id; saveRow('roles', row).then(() => toast(r.id ? 'Role saved' : 'Role created')); },
       onDelete: r.id ? () => deleteRow('roles', r.id).then(() => toast('Role and everything in it deleted')) : null });
 }
 function materialForm(m = {}, defaults = {}) {
-  const pid = m.project_id || defaults.project || S.projects[0]?.id;
+  if (!S.projects.length) { toast('Create a project first, then add materials to it.'); UI.view = 'roles'; render(); return; }
+  const pid = m.project_id || defaults.project || (UI.lens ? lensProjects()[0]?.id : null) || S.projects[0].id;
+  const wasDone = m.status === 'Done';
+  const shops = [...new Set([...SHOP_TYPES, ...S.materials.map(x => x.shop_type).filter(Boolean)])].sort((a, b) => a.localeCompare(b));
   openModal(m.id ? 'Edit material' : 'New material', `
     <div class="field"><label for="f-n">Name</label><input class="input" id="f-n" name="name" value="${esc(m.name)}" required></div>
+    <div class="grid2"><div class="field"><label for="f-p">Project</label><select class="input" id="f-p" name="project_id">${projectOptions(pid)}</select></div>
+    <div class="field"><label for="f-ms">Status</label><select class="input" id="f-ms" name="status">${opts(MATERIAL_STATUS, m.status || 'To do')}</select></div></div>
     <div class="grid2"><div class="field"><label for="f-t">Type</label><select class="input" id="f-t" name="type">${opts(MATERIAL_TYPE, m.type || 'Link')}</select></div>
-    <div class="field"><label for="f-p">Project</label><select class="input" id="f-p" name="project_id">${projectOptions(pid)}</select></div></div>
+    <div class="field"><label for="f-sh">Type of shop</label><input class="input" id="f-sh" name="shop_type" list="shoplist" value="${esc(m.shop_type)}" placeholder="Choose or type"><datalist id="shoplist">${shops.map(x => `<option value="${esc(x)}">`).join('')}</datalist></div></div>
+    <div class="field"><label for="f-md">Due date</label><input class="input" type="date" id="f-md" name="due_date" value="${esc((m.due_date || '').slice(0,10))}"></div>
+    <div class="checkrow"><label><input type="checkbox" name="flagged" ${m.flagged ? 'checked' : ''}>Flagged</label><label><input type="checkbox" name="recurring" ${m.recurring ? 'checked' : ''}>Recurring</label></div>
     <div class="field"><label for="f-u">Link or location</label><input class="input" id="f-u" name="url" value="${esc(m.url)}" placeholder="https://… or a file path"></div>
     <div class="field"><label for="f-no">Notes</label><textarea class="input" id="f-no" name="notes">${esc(m.notes)}</textarea></div>`,
     { saveLabel: m.id ? 'Save material' : 'Add material',
-      onSave: d => { const row = { ...d }; if (m.id) row.id = m.id; saveRow('materials', row).then(() => toast(m.id ? 'Material saved' : 'Material added')); },
+      onSave: async d => {
+        const row = { ...d, shop_type: (d.shop_type || '').trim() };
+        if (m.id) row.id = m.id;
+        row.completed_at = d.status === 'Done' ? (m.completed_at || nowISO()) : null;
+        const saved = await saveRow('materials', row);
+        toast(m.id ? 'Material saved' : 'Material added');
+        if (d.status === 'Done' && !wasDone && d.recurring) askRecurringCopy('materials', S.materials.find(x => x.id === saved.id));
+      },
       onDelete: m.id ? () => deleteRow('materials', m.id) : null });
 }
 function dayList(iso) {
@@ -951,6 +1154,10 @@ document.addEventListener('click', e => {
     case 'day': dayList(id); break;
     case 'toggle-task': { e.stopPropagation(); const t = S.tasks.find(x => x.id === id); if (t) setTaskStatus(t, t.status === 'Done' ? 'To do' : 'Done'); break; }
     case 'edit-task': { const t = S.tasks.find(x => x.id === id); if (t) taskForm(t); break; }
+    case 'toggle-material': { e.stopPropagation(); const m = S.materials.find(x => x.id === id); if (m) setStatus('materials', m, m.status === 'Done' ? 'To do' : 'Done'); break; }
+    case 'flag': { e.stopPropagation(); const tb = el.dataset.table, x = S[tb].find(r => r.id === id); if (x) saveRow(tb, { id, flagged: !x.flagged }); break; }
+    case 'flag-filter': UI.flagged = !UI.flagged; lsSet('compass-flagged', UI.flagged ? '1' : '0'); render(); break;
+    case 'mgroup': UI.mgroup = id; render(); break;
     case 'new-task': taskForm({}, { project: el.dataset.project, status: el.dataset.status, date: el.dataset.date }); break;
     case 'new-project': projectForm({}, { role: el.dataset.role }); break;
     case 'edit-project': projectForm(projOf(id)); break;
@@ -970,7 +1177,7 @@ document.addEventListener('click', e => {
 document.addEventListener('input', e => {
   const b = e.target.dataset?.bind; if (!b) return;
   UI[b] = e.target.value;
-  if (b === 'q') { const pos = e.target.selectionStart; render(); const n = $('[data-bind="q"]'); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }
+  if (b === 'q' || b === 'mq') { const pos = e.target.selectionStart; render(); const n = $(`[data-bind="${b}"]`); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }
   else render();
 });
 document.addEventListener('submit', e => {
@@ -978,7 +1185,7 @@ document.addEventListener('submit', e => {
   e.preventDefault();
   const d = Object.fromEntries(new FormData(e.target).entries());
   if (!d.title.trim()) return;
-  saveRow('tasks', { title: d.title.trim(), project_id: d.project_id, status: 'To do', priority: 'Medium', due_date: TODAY() }).then(() => { toast('Task added'); $('#qa')?.focus(); });
+  saveRow('tasks', { title: d.title.trim(), project_id: d.project_id, status: 'To do', priority: 2, urgency: 3, effort: 2, recurring: false, flagged: false, due_date: TODAY() }).then(() => { toast('Task added'); $('#qa')?.focus(); });
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { if ($('#modal')) closeModal(); else if (UI.drawer) { UI.drawer = null; render(); } }
@@ -997,9 +1204,13 @@ function csvCell(v, sep) {
 }
 function exportRows(t) {
   const extra = { projects: ['role_name'], tasks: ['project_name','role_name'], materials: ['project_name','role_name'] }[t] || [];
-  const cols = [...SCHEMA[t], ...extra];
+  const cols = [...SCHEMA[t], ...(COMPUTED[t] || []), ...extra];
   const rows = [...S[t]].map(r => {
     const o = { ...r };
+    if (t === 'tasks') {
+      o.priority_label = PRIORITY[lvl(r.priority, 4) - 1]; o.urgency_label = URGENCY[lvl(r.urgency, 4) - 1]; o.effort_label = EFFORT[lvl(r.effort, 6) - 1];
+      o.priority_score = scoreOf(r); o.wsjf = String(wsjfOf(r)).replace('.', UI.sep === ';' ? ',' : '.');
+    }
     if (t === 'projects') o.role_name = roleOf(r.role_id)?.name || '';
     if (t === 'tasks' || t === 'materials') { const p = projOf(r.project_id); o.project_name = p?.name || ''; o.role_name = roleOf(p?.role_id)?.name || ''; }
     return o;
@@ -1128,8 +1339,19 @@ async function importRows(t, objs) {
         if (!p) { out.skipped.push(`${line}: unknown project${o.project_name ? ' “' + o.project_name + '” (add role_name to create it)' : ''}`); return; }
         row.project_id = p.id;
       }
-      if (t === 'tasks') { row.status = pickEnum(row.status, TASK_STATUS, 'To do'); row.priority = pickEnum(row.priority, PRIORITY, 'Medium'); if (row.status === 'Done' && !row.completed_at) row.completed_at = nowISO(); if (row.status !== 'Done') row.completed_at = null; }
-      if (t === 'materials') row.type = pickEnum(row.type, MATERIAL_TYPE, 'Other');
+      if (t === 'tasks') {
+        row.status = pickEnum(row.status, TASK_STATUS, 'To do');
+        // Numbers (1-4) or the labels ("Very high", "Urgent", ...) are both accepted
+        for (const [k, list] of [['priority', PRIORITY], ['urgency', URGENCY], ['effort', EFFORT]]) {
+          const src = (row[k] ?? '') !== '' ? row[k] : o[k + '_label'];
+          if ((src ?? '') !== '') row[k] = levelFrom(src, list); else delete row[k];
+        }
+      } else {
+        row.type = pickEnum(row.type, MATERIAL_TYPE, 'Other');
+        if ('status' in row) row.status = pickEnum(row.status, MATERIAL_STATUS, 'To do');
+      }
+      for (const k of ['recurring', 'flagged']) if (k in row) row[k] = toBool(row[k]);
+      if ('status' in row) { if (row.status === 'Done' && !row.completed_at) row.completed_at = nowISO(); if (row.status !== 'Done') row.completed_at = null; }
     }
     if (!row.created_at) row.created_at = nowISO();
     row.updated_at = nowISO();
@@ -1141,6 +1363,7 @@ async function importRows(t, objs) {
   if (rows.length) {
     // Merge with existing rows so a partial file (only some columns) never blanks other fields
     const merged = rows.map(r => ({ ...(S[t].find(x => x.id === r.id) || {}), ...r }));
+    if (t === 'tasks') merged.forEach(normTask); if (t === 'materials') merged.forEach(normMaterial);
     await B.upsert(t, merged);
     merged.forEach(r => { const i = S[t].findIndex(x => x.id === r.id); if (i >= 0) S[t][i] = r; else S[t].push(r); });
   }
@@ -1178,11 +1401,19 @@ function seedData() {
     Tk(p7, 'Run 6 km', 'Done', 'Medium', -2, 3), Tk(p7, 'Run 7 km', 'To do', 'Medium', 2), Tk(p7, 'New running shoes', 'To do', 'Low', null),
     Tk(p2, 'Review wireframes with UX', 'Done', 'Medium', -8, 9), Tk(p1, 'Align budget with Finance', 'Done', 'High', -10, 11)
   ];
-  const M = (p, name, type, url, notes = '') => ({ id: uid(), project_id: p.id, name, type, url, notes, created_at: nowISO(), updated_at: nowISO() });
+  const U = [3,2,4,2,2,3,1,2,1,2,4,3,1,2,3,2,1,2,2,3,1,2,3], E = [3,2,2,1,3,4,1,2,2,1,2,1,2,1,2,1,3,2,2,2,1,3,3];
+  tasks.forEach((t, i) => { t.priority = OLD_PRIORITY[t.priority.toLowerCase()]; t.urgency = U[i]; t.effort = E[i]; t.recurring = false; t.flagged = false; });
+  tasks[0].priority = 4; tasks[0].flagged = true; tasks[10].flagged = true; tasks[19].recurring = true; tasks[13].recurring = true;
+  const M = (p, name, type, url, notes = '', extra = {}) => ({ id: uid(), project_id: p.id, name, type, url, notes, status: 'To do', due_date: null, shop_type: null, recurring: false, flagged: false, completed_at: null, created_at: nowISO(), updated_at: nowISO(), ...extra });
   const materials = [
     M(p1, 'Roadmap draft', 'Document', 'Teams > BEM > Roadmap_Q4.pptx'), M(p1, 'Sales lead list', 'Note', '', 'Contacts per region, update monthly.'),
     M(p2, 'User interview template', 'Link', 'https://example.com/template'), M(p4, 'Bakkerij — tel. 03 000 00 00', 'Contact', '', 'Bestellen min. 5 dagen op voorhand. Crème au beurre, geen noten.'),
-    M(p6, 'Ideeën voor wandelingen', 'Link', 'https://example.com/ardennen')
+    M(p6, 'Ideeën voor wandelingen', 'Link', 'https://example.com/ardennen'),
+    M(p4, 'Ballonnen en slingers (dino)', 'Product', '', '', { shop_type: 'Supermarket', due_date: d(9) }),
+    M(p4, 'Cadeau: dinoboek', 'Product', '', 'Liefst met flapjes', { shop_type: 'Bookshop', due_date: d(10), flagged: true }),
+    M(p5, 'Turnschoenen maat 32', 'Product', '', '', { shop_type: 'Sports store', due_date: d(-1) }),
+    M(p5, 'Brooddoos en drinkfles', 'Product', '', '', { shop_type: 'Supermarket', status: 'Done', completed_at: ts(-3) }),
+    M(p7, 'Sportgel en energierepen', 'Product', '', '', { shop_type: 'Sports store', recurring: true, due_date: d(5) })
   ];
   return { roles: [work, dad, friend, me], projects: [p1, p2, p3, p4, p5, p6, p7], tasks, materials };
 }
@@ -1246,6 +1477,12 @@ async function start(session) {
   gate('<p class="muted" style="margin:0">Loading your data…</p>');
   try { const d = await B.load(); TABLES.forEach(t => S[t] = d[t] || []); prune(); }
   catch (e) { gate(`<h1>Could not load your data</h1><p class="err">${esc(e.message)}</p><p class="muted small">If this is a new database, run supabase-setup.sql first (see SETUP.md).</p><button class="btn" onclick="location.reload()">Try again</button>`); return; }
+  if (B === Remote) {
+    // Version 2 needs extra columns; explain clearly instead of failing on the first save
+    const a = await sb.from('tasks').select('urgency,effort,flagged,recurring,priority_score,wsjf').limit(1);
+    const b = await sb.from('materials').select('shop_type,status,due_date,flagged,recurring').limit(1);
+    if (a.error || b.error) { gate(`<h1>One more step: update the database</h1><p class="muted" style="margin:0">This version of Compass adds priority, urgency, effort, flags and recurring items. Your database needs the matching columns.</p><p class="note" style="margin:0">In Supabase, open <b>SQL Editor</b>, click <b>New query</b>, paste the contents of <code>supabase-update-v2.sql</code> and press <b>Run</b>. Your existing data is kept.</p><p class="err small">${esc((a.error || b.error).message)}</p><button class="btn primary" onclick="location.reload()">I ran it, try again</button>`); return; }
+  }
   B.subscribe(); render();
 }
 async function boot() {
